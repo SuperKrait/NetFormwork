@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{AF5AE475-A639-48B7-87DB-4AAA824C9129}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NetModel</RootNamespace>
+    <AssemblyName>NetModel</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\Bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="NetMgr\Http\FormData.cs" />
+    <Compile Include="NetMgr\Http\HttpHelper.cs" />
+    <Compile Include="NetMgr\Http\HTTPPackage.cs" />
+    <Compile Include="NetMgr\Http\HTTPPackageLinkNode.cs" />
+    <Compile Include="NetMgr\Http\HttpSimpleMgr.cs" />
+    <Compile Include="NetMgr\Model\GTGame\GTPlayerClient.cs" />
+    <Compile Include="NetMgr\Model\GTGame\GTRoomPlayer.cs" />
+    <Compile Include="NetMgr\Model\Client\PlayerClient.cs" />
+    <Compile Include="NetMgr\Model\Server\Room\Room.cs" />
+    <Compile Include="NetMgr\Model\Server\Room\RoomMgr.cs" />
+    <Compile Include="NetMgr\Model\Server\Room\RoomPlayer.cs" />
+    <Compile Include="NetMgr\Model\Server\PlayerAccont.cs" />
+    <Compile Include="NetMgr\Model\Client\ServerInfo.cs" />
+    <Compile Include="NetMgr\Model\Server\TcpSimpleClient.cs" />
+    <Compile Include="NetMgr\Model\Server\UdpSimpleClient.cs" />
+    <Compile Include="NetMgr\Model\Server\SimpleClient.cs" />
+    <Compile Include="NetMgr\Model\Server\SimpleServer.cs" />
+    <Compile Include="NetMgr\Model\Server\TcpSimpleServer.cs" />
+    <Compile Include="NetMgr\Model\Server\UdpSimpleServer.cs" />
+    <Compile Include="NetMgr\Tcp\Protocol\ProtocolBase.cs" />
+    <Compile Include="NetMgr\Tcp\Protocol\UdpProtocolBase.cs" />
+    <Compile Include="NetMgr\Tcp\Protocol\UdpProtocolReader.cs" />
+    <Compile Include="NetMgr\Tcp\Protocol\UdpProtocolWriter.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="NetMgr\Model\Server\Client\" />
+    <Folder Include="NetMgr\Model\Server\Tcp\" />
+    <Folder Include="NetMgr\Model\Server\Udp\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

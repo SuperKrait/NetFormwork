@@ -1,0 +1,5 @@
+F:\CSharp_Projects\WinFormBase\Bin\LogicModel.dll
+F:\CSharp_Projects\WinFormBase\Bin\LogicModel.pdb
+F:\CSharp_Projects\WinFormBase\LogicModel\obj\Debug\LogicModel.csprojResolveAssemblyReference.cache
+F:\CSharp_Projects\WinFormBase\LogicModel\obj\Debug\LogicModel.dll
+F:\CSharp_Projects\WinFormBase\LogicModel\obj\Debug\LogicModel.pdb

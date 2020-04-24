@@ -1,0 +1,5 @@
+F:\CSharp_Projects\WinFormBase\UI\bin\Debug\UI.exe.config
+F:\CSharp_Projects\WinFormBase\UI\obj\Debug\UI.csprojResolveAssemblyReference.cache
+F:\CSharp_Projects\WinFormBase\UI\obj\Debug\ExcelMgr.Form1.resources
+F:\CSharp_Projects\WinFormBase\UI\obj\Debug\UI.Properties.Resources.resources
+F:\CSharp_Projects\WinFormBase\UI\obj\Debug\UI.csproj.GenerateResource.Cache

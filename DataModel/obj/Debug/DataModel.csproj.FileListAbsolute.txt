@@ -1,0 +1,5 @@
+F:\CSharp_Projects\WinFormBase\Bin\DataModel.dll
+F:\CSharp_Projects\WinFormBase\Bin\DataModel.pdb
+F:\CSharp_Projects\WinFormBase\DataModel\obj\Debug\DataModel.csprojResolveAssemblyReference.cache
+F:\CSharp_Projects\WinFormBase\DataModel\obj\Debug\DataModel.dll
+F:\CSharp_Projects\WinFormBase\DataModel\obj\Debug\DataModel.pdb

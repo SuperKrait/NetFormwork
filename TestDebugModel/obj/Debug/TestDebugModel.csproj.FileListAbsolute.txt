@@ -1,0 +1,15 @@
+F:\CSharp_Projects\WinFormBase\TestDebugModel\bin\Debug\TestDebugModel.exe.config
+F:\CSharp_Projects\WinFormBase\TestDebugModel\bin\Debug\TestDebugModel.exe
+F:\CSharp_Projects\WinFormBase\TestDebugModel\bin\Debug\TestDebugModel.pdb
+F:\CSharp_Projects\WinFormBase\TestDebugModel\obj\Debug\TestDebugModel.exe
+F:\CSharp_Projects\WinFormBase\TestDebugModel\obj\Debug\TestDebugModel.pdb
+F:\CSharp_Projects\WinFormBase\Bin\TestDebugModel.exe.config
+F:\CSharp_Projects\WinFormBase\Bin\TestDebugModel.exe
+F:\CSharp_Projects\WinFormBase\Bin\TestDebugModel.pdb
+F:\CSharp_Projects\WinFormBase\TestDebugModel\obj\Debug\TestDebugModel.csprojResolveAssemblyReference.cache
+E:\WorkSpace\Program\C#\WinFormBase\Bin\TestDebugModel.exe.config
+E:\WorkSpace\Program\C#\WinFormBase\TestDebugModel\obj\Debug\TestDebugModel.exe
+E:\WorkSpace\Program\C#\WinFormBase\TestDebugModel\obj\Debug\TestDebugModel.pdb
+E:\WorkSpace\Program\C#\WinFormBase\Bin\TestDebugModel.exe
+E:\WorkSpace\Program\C#\WinFormBase\Bin\TestDebugModel.pdb
+E:\WorkSpace\Program\C#\WinFormBase\TestDebugModel\obj\Debug\TestDebugModel.csprojResolveAssemblyReference.cache
