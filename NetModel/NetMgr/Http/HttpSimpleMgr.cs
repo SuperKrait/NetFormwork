@@ -153,5 +153,19 @@ namespace NetModel.NetMgr.Http
             }
             file = null;
         }
+
+        /// <summary>
+        /// HTTPS修改加密方式
+        /// </summary>
+        /// <param name="type">
+        /// 0=Ssl3
+        /// 1=Tls
+        /// 2=Tls11
+        /// 3=Tls12
+        /// </param>
+        public static void ChangeHttpsSecurityProtocol(int type)
+        {
+            NetModel.NetMgr.Http.HttpHelper.ChangeHttpsSecurityProtocol(type);
+        }
     }
 }

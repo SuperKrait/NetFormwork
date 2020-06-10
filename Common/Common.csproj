@@ -40,16 +40,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Clock\ClockEvent.cs" />
+    <Compile Include="Clock\ClockHelper.cs" />
     <Compile Include="EventMgr\EventSystemConst.cs" />
     <Compile Include="EventMgr\EventSystemMgr.cs" />
-    <Compile Include="IActionTask.cs" />
+    <Compile Include="Log\DefaultLogAgent.cs" />
+    <Compile Include="Log\ILogAgent.cs" />
+    <Compile Include="Log\LogAgent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TaskPool\TaskPoolHelper.cs" />
     <Compile Include="ThreadPool\ItemThread.cs" />
     <Compile Include="ThreadPool\ThreadPoolMgr.cs" />
     <Compile Include="ThreadPool\ThreadPoolSimple.cs" />
     <Compile Include="ThreadPool\ThreadWeightQueue.cs" />
-    <Compile Include="ThreadTools.cs" />
+    <Compile Include="Utils\MD5Code.cs" />
+    <Compile Include="Utils\ToolsMgr.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

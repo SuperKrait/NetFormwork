@@ -3,3 +3,8 @@ F:\CSharp_Projects\WinFormBase\Bin\Common.pdb
 F:\CSharp_Projects\WinFormBase\Common\obj\Debug\Common.csprojResolveAssemblyReference.cache
 F:\CSharp_Projects\WinFormBase\Common\obj\Debug\Common.dll
 F:\CSharp_Projects\WinFormBase\Common\obj\Debug\Common.pdb
+E:\WorkSpace\Program\C#\WinFormBase\Bin\Common.dll
+E:\WorkSpace\Program\C#\WinFormBase\Bin\Common.pdb
+E:\WorkSpace\Program\C#\WinFormBase\Common\obj\Debug\Common.csprojResolveAssemblyReference.cache
+E:\WorkSpace\Program\C#\WinFormBase\Common\obj\Debug\Common.dll
+E:\WorkSpace\Program\C#\WinFormBase\Common\obj\Debug\Common.pdb

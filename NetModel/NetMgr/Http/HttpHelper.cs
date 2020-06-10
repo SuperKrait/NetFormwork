@@ -51,6 +51,7 @@ namespace NetModel.NetMgr.Http
             {
                 request = WebRequest.Create(url) as HttpWebRequest;
             }
+            SetDefaultUserAgent(request.Headers);
 
             request.Method = "POST";
             request.ContentType = "application/x-www-form-urlencoded";
@@ -183,9 +184,10 @@ namespace NetModel.NetMgr.Http
 
         private static bool CheckValidationResult(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
-            if (sslPolicyErrors == SslPolicyErrors.None)
-                return true;
-            return false;
+            //if (sslPolicyErrors == SslPolicyErrors.None)
+            //    return true;
+            //return false;
+            return true;
         }
 
 
@@ -213,6 +215,7 @@ namespace NetModel.NetMgr.Http
             {
                 request = WebRequest.Create(url) as HttpWebRequest;
             }
+            SetDefaultUserAgent(request.Headers);
             request.Method = "GET";
 
             //设置代理UserAgent和超时
@@ -343,6 +346,7 @@ namespace NetModel.NetMgr.Http
             {
                 request = WebRequest.Create(url) as HttpWebRequest;
             }
+            SetDefaultUserAgent(request.Headers);
 
             request.Timeout = timeOut;
             request.Method = "POST";
@@ -518,6 +522,11 @@ namespace NetModel.NetMgr.Http
             }
         }
 
+        private static void SetDefaultUserAgent(WebHeaderCollection header)
+        {
+            //SetHeaderValue(header, "User-Agent", @"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.129 Safari/537.36");
+        }
+
         public static void SetHeaderValue(WebHeaderCollection header, string name, string content)
         {
             var property = typeof(WebHeaderCollection).GetProperty("InnerCollection", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
@@ -526,6 +535,26 @@ namespace NetModel.NetMgr.Http
                 var collection = property.GetValue(header, null) as NameValueCollection;
                 collection[name] = content;
             }
+        }
+
+        public static void ChangeHttpsSecurityProtocol(int type)
+        {
+            switch (type)
+            {
+                case 0:
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
+                    break;
+                case 1:
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
+                    break;
+                case 2:
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11;
+                    break;
+                case 3:
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                    break;
+            }
+            
         }
     }
 }

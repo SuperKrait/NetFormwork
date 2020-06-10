@@ -7,3 +7,4 @@ E:\WorkSpace\Program\C#\WinFormBase\Bin\NetModel.dll
 E:\WorkSpace\Program\C#\WinFormBase\Bin\NetModel.pdb
 E:\WorkSpace\Program\C#\WinFormBase\NetModel\obj\Debug\NetModel.dll
 E:\WorkSpace\Program\C#\WinFormBase\NetModel\obj\Debug\NetModel.pdb
+E:\WorkSpace\Program\C#\WinFormBase\NetModel\obj\Debug\NetModel.csprojResolveAssemblyReference.cache

@@ -45,31 +45,23 @@
     <Compile Include="NetMgr\Http\HTTPPackage.cs" />
     <Compile Include="NetMgr\Http\HTTPPackageLinkNode.cs" />
     <Compile Include="NetMgr\Http\HttpSimpleMgr.cs" />
-    <Compile Include="NetMgr\S2C\GTGame\GTPlayerClient.cs" />
-    <Compile Include="NetMgr\S2C\GTGame\GTRoomPlayer.cs" />
-    <Compile Include="NetMgr\S2C\Client\PlayerClient.cs" />
-    <Compile Include="NetMgr\S2C\Package\PackageBase.cs" />
-    <Compile Include="NetMgr\S2C\Package\PackageFactory.cs" />
-    <Compile Include="NetMgr\S2C\Package\PackageReponse.cs" />
-    <Compile Include="NetMgr\S2C\Protocol\ServerProtocolReponse.cs" />
-    <Compile Include="NetMgr\S2C\Protocol\ServerProtocolRequest.cs" />
-    <Compile Include="NetMgr\S2C\S2CCtl.cs" />
-    <Compile Include="NetMgr\S2C\Server\Room\Room.cs" />
-    <Compile Include="NetMgr\S2C\Server\Room\RoomMgr.cs" />
-    <Compile Include="NetMgr\S2C\Server\Room\RoomPlayer.cs" />
-    <Compile Include="NetMgr\S2C\Server\PlayerAccont.cs" />
-    <Compile Include="NetMgr\S2C\Client\ServerInfo.cs" />
-    <Compile Include="NetMgr\S2C\Server\Tcp\TcpSimpleClient.cs" />
-    <Compile Include="NetMgr\S2C\Server\Udp\UdpSimpleClient.cs" />
-    <Compile Include="NetMgr\S2C\Server\SimpleClient.cs" />
-    <Compile Include="NetMgr\S2C\Server\SimpleServer.cs" />
-    <Compile Include="NetMgr\S2C\Server\Tcp\TcpSimpleServer.cs" />
-    <Compile Include="NetMgr\S2C\Server\Udp\UdpSimpleServer.cs" />
-    <Compile Include="NetMgr\S2C\Protocol\ServerProtocolBase.cs" />
-    <Compile Include="NetMgr\S2C\Package\PackageRequest.cs" />
+    <Compile Include="NetMgr\S2C\Server\PackageReceponse.cs" />
+    <Compile Include="NetMgr\S2C\Server\PackageRequest.cs" />
+    <Compile Include="NetMgr\S2C\Server\PackageBase.cs" />
+    <Compile Include="NetMgr\S2C\Server\ServerMgr.cs" />
+    <Compile Include="NetMgr\S2C\Server\TcpAgent.cs" />
+    <Compile Include="NetMgr\S2C\Server\UdpAgent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="NetMgr\S2C\Client\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{01FC188B-8FBB-4E7E-8C64-B863F6313367}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

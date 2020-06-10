@@ -50,26 +50,34 @@ namespace TestDebugModel
         
         static void Main(string[] args)
         {
-            DateTime createTime = System.DateTime.Now;
-            createTime = createTime.AddHours(-8);
+            SByte a = -128;
 
-            string createDateR = createTime.ToString("R");
-            Console.WriteLine(createDateR);
+            short b = a;
+            ushort c = (ushort)b;
+
+            Console.WriteLine(c);
             Console.ReadKey();
+
+            //HttpSimpleMgr.ChangeHttpsSecurityProtocol(3);
+            //Dictionary<string, string> dic = new Dictionary<string, string>();
+            //dic.Add("machineId", "oxo3s4vPUOa7FJYRujbKxf0P0iuM122");
+            //dic.Add("devStatus", "0");
+            //dic.Add("openId", string.Empty);
+            //HttpPost(@"https://store.frtar.com/frtar/hardware/heartBeat", Log, dic);
+            //Console.ReadKey();
         }
+
         public const string serverBaseUrl = @"http://192.168.1.109:9999";
         public const string heartUrl = serverBaseUrl + "/frtar/hardware/heartBeat";
-        private static SynchronizationContext context = new SynchronizationContext();
-        public static async Task HttpPost(string url, System.Action<string, string> callBack, Dictionary<string, string> parameters = null)
+
+        public static void HttpPost(string url, System.Action<string, string> callBack, Dictionary<string, string> parameters = null)
         {
-            await Task.Delay(1);
             try
             {
                 string str = HttpSimpleMgr.HttpGetStrContentByPost(url, parameters);
-                context.Post(obj =>
-                {
-                    callBack(str, string.Empty);
-                }, str);
+
+                callBack(str, string.Empty);
+
             }
             catch (Exception e)
             {
@@ -77,59 +85,17 @@ namespace TestDebugModel
             }
         }
 
-        static async Task GetStart()
+        public static void Log(string msg, string err)
         {
-            await Task.Factory.StartNew(() =>
+            if (!string.IsNullOrEmpty(msg))
             {
-                Console.WriteLine("Thread2 id = " + Thread.CurrentThread.ManagedThreadId);
-            },
-            CancellationToken.None,
-            TaskCreationOptions.None,
-            TaskScheduler.Current);
-
-            Task.Factory.StartNew(() =>
+                Console.WriteLine("msg====" + msg);
+            }
+            else
             {
-                Console.WriteLine("Thread4 id = " + Thread.CurrentThread.ManagedThreadId);
-            },
-            CancellationToken.None,
-            TaskCreationOptions.None,
-            TaskScheduler.Current);
-
-
-            Console.WriteLine("Thread3 id = " + Thread.CurrentThread.ManagedThreadId);
-            Thread.Sleep(3000);
-            
+                Console.WriteLine("error === " + err);
+            }
         }
 
-        private void GetStart1()
-        {
-            Task t = new Task(() =>
-            { }, CancellationToken.None, TaskCreationOptions.LongRunning);
-        }
-
-        static void DisplayTree(Node root)
-        {
-            var task = Task.Factory.StartNew(() => DisplayNode(root),
-                                            CancellationToken.None,
-                                            TaskCreationOptions.None,
-                                            TaskScheduler.Default);
-            task.Wait();
-        }
-
-        static void DisplayNode(Node current)
-        {
-
-            if (current.Left != null)
-                Task.Factory.StartNew(() => DisplayNode(current.Left),
-                                            CancellationToken.None,
-                                            TaskCreationOptions.AttachedToParent,
-                                            TaskScheduler.Default);
-            if (current.Right != null)
-                Task.Factory.StartNew(() => DisplayNode(current.Right),
-                                            CancellationToken.None,
-                                            TaskCreationOptions.AttachedToParent,
-                                            TaskScheduler.Default);
-            Console.WriteLine("当前节点的值为{0};处理的ThreadId={1}", current.Text, Thread.CurrentThread.ManagedThreadId);
-        }
     }
 }
