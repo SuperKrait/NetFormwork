@@ -45,7 +45,7 @@
     <Compile Include="NetMgr\Http\HTTPPackage.cs" />
     <Compile Include="NetMgr\Http\HTTPPackageLinkNode.cs" />
     <Compile Include="NetMgr\Http\HttpSimpleMgr.cs" />
-    <Compile Include="NetMgr\S2C\Server\PackageReceponse.cs" />
+    <Compile Include="NetMgr\S2C\Server\PackageResponse.cs" />
     <Compile Include="NetMgr\S2C\Server\PackageRequest.cs" />
     <Compile Include="NetMgr\S2C\Server\PackageBase.cs" />
     <Compile Include="NetMgr\S2C\Server\ServerMgr.cs" />
