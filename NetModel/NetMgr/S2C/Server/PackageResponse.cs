@@ -7,7 +7,7 @@ using System.IO;
 
 namespace NetModel.NetMgr.S2C.Server
 {
-    class PackageReceponse : PackageBase
+    class PackageResponse : PackageBase
     {
         private MemoryStream stream;
         private BinaryReader reader;
@@ -18,7 +18,8 @@ namespace NetModel.NetMgr.S2C.Server
         } = 0;
         public void Init(byte[] data)
         {
-            this.ProtocolData = data;
+            this.ProtocolData = new byte[data.Length - HeaderCount];
+            Array.Copy(data, HeaderCount, this.ProtocolData, 0, this.ProtocolData.Length);
             stream = new MemoryStream(this.ProtocolData);
             reader = new BinaryReader(stream);
         }
@@ -81,7 +82,7 @@ namespace NetModel.NetMgr.S2C.Server
             stream.Close();
         }
 
-        ~PackageReceponse()
+        ~PackageResponse()
         {
             if (isDestory)
             {

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Common.TaskPool
 {
-    class TaskPoolHelper
+    public class TaskPoolHelper
     {
         public readonly static TaskPoolHelper Instance = new TaskPoolHelper();
 
