@@ -17,17 +17,18 @@ namespace NetModel.NetMgr.S2C.Server
         #region 初始化
         /*初始化*/
 
-        public void Init(Func<int, IPEndPoint> getIpHandler)
+        public bool Init(Func<int, IPEndPoint> getIpHandler)
         {
             if (!status.Equals(0))
             {
-                return;
+                return false;
             }
             this.getIpHandler = getIpHandler;
             requestQueue = new List<PackageRequest>();
             responseQueue = new List<PackageResponse>();
             PauseClient();
             CreateUdpRequestClients();
+            return true;
             //clientPort = new IPEndPoint(IPAddress.Broadcast, port);
         }
         #endregion
@@ -38,7 +39,7 @@ namespace NetModel.NetMgr.S2C.Server
         /// 0：关闭
         /// 1：开启
         /// 2：服务器挂起
-        /// 3：关闭中
+        /// -2：关闭中
         /// </summary>
         private int status = 0;
         private object mainLock = new object();
@@ -61,7 +62,7 @@ namespace NetModel.NetMgr.S2C.Server
 
         private void StopClient()
         {
-            status = 3;
+            status = -2;
         }
 
         private void SetDefaultClient()
@@ -89,9 +90,7 @@ namespace NetModel.NetMgr.S2C.Server
             lock (responseQueue)
             {
                 DestroyReponseQueue(responseQueue);
-            }
-
-
+            }            
         }
 
         
@@ -118,6 +117,16 @@ namespace NetModel.NetMgr.S2C.Server
             {
                 Thread.Sleep(1);
 
+                switch (status)
+                {
+                    case 1:
+                        break;
+                    case 2:
+                        continue;
+                    default:
+                        goto StopServer;
+                }
+
                 List<PackageRequest> tmplist = GetSendData();
                 if (tmplist == null)
                 {
@@ -130,13 +139,14 @@ namespace NetModel.NetMgr.S2C.Server
                 {
                     switch (status)
                     {
-                        case 0:
-                        case 3:
-                            DestorySendQueue(list);
-                            goto StopServer;
+                        case 1:
+                            break;
                         case 2:
                             DestorySendQueue(list);
                             continue;
+                        default:
+                            DestorySendQueue(list);
+                            goto StopServer;
                     }
 
                     for (int i = 0; i < list.Count; i++)
@@ -148,8 +158,8 @@ namespace NetModel.NetMgr.S2C.Server
                 }
             }
 
-
         StopServer:
+            Interlocked.Add(ref status, 1);
             LogAgent.Log("!关闭Udp循环线程");
 
         }
@@ -169,13 +179,14 @@ namespace NetModel.NetMgr.S2C.Server
                 {
                     switch (status)
                     {
-                        case 0:
-                        case 3:
-                            goto StopServer;
+                        case 1:
+                            break;
                         case 2:
                             continue;
+                        default:
+                            goto StopServer;
                     }
-                    
+
                     byte[] data = udp2ClientResponse.Receive(ref receiveClientIpend);//默认每次只接收一个包
                     data = CheckPack(data);
                     if (data == null)
@@ -191,6 +202,7 @@ namespace NetModel.NetMgr.S2C.Server
 
 
         StopServer:
+            Interlocked.Add(ref status, 1);
             LogAgent.Log("!关闭Udp循环线程");
         }
 
@@ -281,24 +293,33 @@ namespace NetModel.NetMgr.S2C.Server
 
         private List<PackageRequest> GetSendData()
         {
-            lock (requestQueue)
+            try
             {
-                if (requestQueue.Count > 0)
+                lock (requestQueue)
                 {
-                    List<PackageRequest> list = new List<PackageRequest>();
-                    list.AddRange(requestQueue);
+                    if (requestQueue.Count > 0)
+                    {
+                        List<PackageRequest> list = new List<PackageRequest>();
+                        list.AddRange(requestQueue);
 
-                    //Udp数据包没有必要保留，发送了就删除
-                    requestQueue.Clear();
+                        //Udp数据包没有必要保留，发送了就删除
+                        requestQueue.Clear();
 
-                    return list;
+                        return list;
+                    }
                 }
+            }
+            catch(NullReferenceException e)
+            {
+                LogAgent.LogWarning ("udp发送对列已经销毁" + e.ToString() + "\r\n");
             }
             return null;
         }
 
         private void DestorySendQueue(List<PackageRequest> list)
         {
+            if (list == null)
+                return;
             for (int i = 0; i < list.Count; i++)
             {
                 if (list[i] != null)
@@ -339,6 +360,8 @@ namespace NetModel.NetMgr.S2C.Server
 
         private void DestroyReponseQueue(List<PackageResponse> list)
         {
+            if (list == null)
+                return;
             for (int i = 0; i < list.Count; i++)
             {
                 if (list[i] != null)

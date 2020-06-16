@@ -48,6 +48,12 @@
     <Compile Include="NetMgr\S2C\Server\PackageResponse.cs" />
     <Compile Include="NetMgr\S2C\Server\PackageRequest.cs" />
     <Compile Include="NetMgr\S2C\Server\PackageBase.cs" />
+    <Compile Include="NetMgr\S2C\Server\ProtocolMgr.cs" />
+    <Compile Include="NetMgr\S2C\Server\IPackageRequest.cs" />
+    <Compile Include="NetMgr\S2C\Server\Protocol\TcpReponseBase.cs" />
+    <Compile Include="NetMgr\S2C\Server\Protocol\TcpRequestBase.cs" />
+    <Compile Include="NetMgr\S2C\Server\Protocol\TcpRequestGetClientId.cs" />
+    <Compile Include="NetMgr\S2C\Server\Protocol\TcpResponseGetClientId.cs" />
     <Compile Include="NetMgr\S2C\Server\ServerMgr.cs" />
     <Compile Include="NetMgr\S2C\Server\TcpAgent.cs" />
     <Compile Include="NetMgr\S2C\Server\UdpAgent.cs" />

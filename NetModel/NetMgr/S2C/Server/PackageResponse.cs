@@ -7,7 +7,7 @@ using System.IO;
 
 namespace NetModel.NetMgr.S2C.Server
 {
-    class PackageResponse : PackageBase
+    public class PackageResponse : PackageBase
     {
         private MemoryStream stream;
         private BinaryReader reader;

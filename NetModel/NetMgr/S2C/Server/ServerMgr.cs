@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NetModel.NetMgr.S2C.Server
@@ -12,19 +13,61 @@ namespace NetModel.NetMgr.S2C.Server
         #region Udp相关
         /*创建Udp监听代理*/
         private UdpAgent udpAgent;
+        private bool isUdpStart = true;
 
-        private void StartUdpServer()
+        private bool InitUdpServer()
         {
             udpAgent = new UdpAgent();
-            udpAgent.Init(GetClientIpById);
+            return udpAgent.Init(GetClientIpById);            
         }
 
-        /*关闭Udp监听代理*/
+        /*控制UDP服务器*/
+
+        public void StartClient()
+        {
+            udpAgent.StartClient();
+        }
+
+        public void PauseClient()
+        {
+            udpAgent.PauseClient();
+        }
+
+        private void DestoryClient()
+        {
+            udpAgent.DestoryUdpServer();
+        }
 
         /*接收到客户端消息*/
 
+        private void GetUdpMessage()
+        {
+            while (isUdpStart)
+            {
+                Thread.Sleep(1);
+                List<PackageResponse> list = udpAgent.GetAllReponse();
+                if (list == null)
+                    continue;
+                for (int i = 0; i < list.Count; i++)
+                {
+                    AddClient(list[i].ClientId, list[i].ipEnd);
+
+                }
+            }
+            
+        }
+
 
         /*发送消息到指定ip端口*/
+
+        public void SendMessage(PackageRequest request)
+        {
+            if (!isUdpStart)
+            {
+                return;
+            }
+            udpAgent.AddReqPackage(request);
+        }
 
         #endregion
 
@@ -79,6 +122,23 @@ namespace NetModel.NetMgr.S2C.Server
             }
         }
 
+        private void RemoveClient(int id)
+        {
+            lock (clientDic)
+            {
+                if (!clientDic.ContainsKey(id))
+                {
+                    clientDic.Remove(id);
+                }
+            }
+        }
+
+        private void ClearAll()
+        {
+            lock(clientDic)
+                clientDic.Clear();
+        }
+
         /*获取本机可用Ip*/
 
         
@@ -90,6 +150,7 @@ namespace NetModel.NetMgr.S2C.Server
         }
 
         /*改变服务器状态*/
+
 
         private int status = 0;
 
@@ -103,6 +164,25 @@ namespace NetModel.NetMgr.S2C.Server
         /*关闭服务器*/
 
         /*回收数据*/
+
+
+        /*接收数据*/
+
+        private ProtocolMgr protocolMgr;
+
+        public void AddMessage(PackageResponse pack)
+        {
+            protocolMgr.AddRespPackage2Arr(pack);
+        }
+
+
+        /*服务器通用*/
+
+
+        public void Update()
+        {
+            protocolMgr.Update();
+        }
 
         #endregion
 

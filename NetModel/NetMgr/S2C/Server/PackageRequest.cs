@@ -7,7 +7,7 @@ using System.IO;
 
 namespace NetModel.NetMgr.S2C.Server
 {
-    class PackageRequest : PackageBase
+    public class PackageRequest : PackageBase, IPackageRequest
     {
         private MemoryStream stream;
         private BinaryWriter writer;
@@ -17,7 +17,7 @@ namespace NetModel.NetMgr.S2C.Server
             set;
         } = 0;
 
-        public PackageRequest(Type t, int clientId)
+        public virtual IPackageRequest Initialization(Type t, int clientId)
         {
             this.ClientId = clientId;
             this.ProtocolData = new byte[System.Runtime.InteropServices.Marshal.SizeOf(t) + HeaderCount];
@@ -25,6 +25,7 @@ namespace NetModel.NetMgr.S2C.Server
             SetIndex(HeaderCount);
             //this.Count = HeaderCount;
             writer = new BinaryWriter(stream);
+            return this;
         }
 
         public void WriteInt32(int _value)
@@ -89,6 +90,11 @@ namespace NetModel.NetMgr.S2C.Server
             //writer.Flush();
             writer.Close();
             stream.Close();
+        }
+
+        public virtual void Serialize()
+        {
+            ;
         }
 
         ~PackageRequest()

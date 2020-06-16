@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NetModel.NetMgr.S2C.Server
 {
-    class PackageBase : IDisposable, IComparable<PackageBase>, IEqualityComparer<PackageBase>
+    public class PackageBase : IDisposable, IComparable<PackageBase>, IEqualityComparer<PackageBase>
     {
         public long Id
         {
@@ -17,7 +17,9 @@ namespace NetModel.NetMgr.S2C.Server
         } = 0xffffffff;
 
         /// <summary>
-        /// 客户端id，当Id为-1的时候向全网广播
+        /// 客户端id，
+        /// 当Id为-1的时候向全网广播
+        /// 当Id位-2的时候为服务器消息
         /// </summary>
         public int ClientId
         {
