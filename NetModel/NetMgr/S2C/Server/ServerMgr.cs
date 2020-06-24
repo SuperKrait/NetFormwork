@@ -1,10 +1,12 @@
-﻿using System;
+﻿using NetModel.NetMgr.S2C.Server.Protocol;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.TaskPool;
 
 namespace NetModel.NetMgr.S2C.Server
 {
@@ -18,22 +20,31 @@ namespace NetModel.NetMgr.S2C.Server
         private bool InitUdpServer()
         {
             udpAgent = new UdpAgent();
-            return udpAgent.Init(GetClientIpById);            
+            if (!udpAgent.Init(GetClientIpById))
+            {
+                udpAgent.DestoryUdpServer();
+                return false;
+            }
+            else
+            {
+                TaskPoolHelper.Instance.StartALongTask(GetUdpMessage, "ServerMgr->GetUdpMessage");
+                return true;
+            }
         }
 
         /*控制UDP服务器*/
 
-        public void StartClient()
+        private void StartUdpClient()
         {
             udpAgent.StartClient();
         }
 
-        public void PauseClient()
+        private void PauseUdpClient()
         {
             udpAgent.PauseClient();
         }
 
-        private void DestoryClient()
+        private void DestoryUdpClient()
         {
             udpAgent.DestoryUdpServer();
         }
@@ -45,13 +56,13 @@ namespace NetModel.NetMgr.S2C.Server
             while (isUdpStart)
             {
                 Thread.Sleep(1);
-                List<PackageResponse> list = udpAgent.GetAllReponse();
+                List<UdpReponseBase> list = udpAgent.GetAllReponse();
                 if (list == null)
                     continue;
                 for (int i = 0; i < list.Count; i++)
                 {
                     AddClient(list[i].ClientId, list[i].ipEnd);
-
+                    AddMessage(list[i]);
                 }
             }
             
@@ -60,7 +71,7 @@ namespace NetModel.NetMgr.S2C.Server
 
         /*发送消息到指定ip端口*/
 
-        public void SendMessage(PackageRequest request)
+        public void SendUdpMessage(UdpRequestBase request)
         {
             if (!isUdpStart)
             {
@@ -73,28 +84,103 @@ namespace NetModel.NetMgr.S2C.Server
 
         #region Tcp相关
         /*创建Tcp监听代理*/
+        private TcpAgent tcpAgent;
+        private bool isTcpStart = true;
+        private int tcpListenerPort = 0xff61;
 
-        /*关闭Tcp监听代理*/
 
-        /*接收到客户端连接*/
+        private bool InitTcpServer()
+        {
+            this.tcpAgent = new TcpAgent();
+            if (this.tcpAgent.Init(GetLocalTcpServerIp()))
+            {
+                TaskPoolHelper.Instance.StartALongTask(GetTcpMessage, "ServerMgr->GetTcpMessage");
+                return true;
+            }
+            else
+            {
+                this.tcpAgent.DestoryTcpServer();
+                return false;
+            }
+        }
+        /// <summary>
+        /// 获取当前Ip地址
+        /// </summary>
+        /// <returns></returns>
+        private IPEndPoint GetLocalTcpServerIp()
+        {
+            IPAddress[] addrs = GetLocalIp();
+            IPEndPoint point = null;
+            for (int i = 0; i < addrs.Length; i++)
+            {
+                if (addrs[i].ToString().IndexOf("192").Equals(0))
+                {
+                    point = new IPEndPoint(addrs[i], this.tcpListenerPort);
+                    break;
+                }
+            }
+            return point;
+        }
 
-        /*断开客户端连接*/
+        /*控制TCP服务器*/
+
+        private void StartTcpClient()
+        {
+            tcpAgent.StartClient();
+        }
+
+        private void PauseTcpClient()
+        {
+            tcpAgent.PauseClient();
+        }
+
+        private void DestoryTcpClient()
+        {
+            tcpAgent.DestoryTcpServer();
+        }
 
         /*接收到客户端消息*/
 
-        /*发送消息给客户端*/
+        private void GetTcpMessage()
+        {
+            while (isTcpStart)
+            {
+                Thread.Sleep(1);
+                Dictionary<string, List<TcpResponseBase>> dic = tcpAgent.GetAllReponse();
+                if (dic == null)
+                    continue;
+                foreach (var pairs in dic)
+                {
+                    List<TcpResponseBase> tmpList = pairs.Value;
+                    for (int i = 0; i < tmpList.Count; i++)
+                        AddClient(tmpList[i].ClientId, tmpList[i].ipEnd);
+                }
+            }
+
+        }
+
+
+        /*发送消息到指定ip端口*/
+
+        public void SendTcpMessage(TcpRequestBase request)
+        {
+            if (!isTcpStart)
+            {
+                return;
+            }
+            tcpAgent.AddMessage(request);
+        }
 
         #endregion
 
         #region 服务器相关
 
         /*管理客户端*/
-        private int clientBoardCostPort = 0x0faa;
         private Dictionary<int, IPEndPoint> clientDic;
         private void InitClientMgr()
         {
             clientDic = new Dictionary<int, IPEndPoint>();
-            clientDic.Add(-1, new IPEndPoint(IPAddress.Broadcast, clientBoardCostPort));
+            clientDic.Add(-1, new IPEndPoint(IPAddress.Broadcast, tcpListenerPort));
         }
 
         private IPEndPoint GetClientIpById(int id)
@@ -140,9 +226,6 @@ namespace NetModel.NetMgr.S2C.Server
         }
 
         /*获取本机可用Ip*/
-
-        
-
         private IPAddress[] GetLocalIp()
         {
             IPAddress[] ipAddrs = Dns.GetHostAddresses("localhost");
@@ -158,12 +241,6 @@ namespace NetModel.NetMgr.S2C.Server
         {
             this.status = status;
         }
-
-        /*启动服务器*/
-
-        /*关闭服务器*/
-
-        /*回收数据*/
 
 
         /*接收数据*/

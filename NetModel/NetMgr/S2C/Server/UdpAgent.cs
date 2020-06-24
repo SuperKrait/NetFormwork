@@ -9,6 +9,7 @@ using System.Threading;
 using Common.Utils;
 using Common.TaskPool;
 using Common.Log;
+using NetModel.NetMgr.S2C.Server.Protocol;
 
 namespace NetModel.NetMgr.S2C.Server
 {
@@ -24,8 +25,8 @@ namespace NetModel.NetMgr.S2C.Server
                 return false;
             }
             this.getIpHandler = getIpHandler;
-            requestQueue = new List<PackageRequest>();
-            responseQueue = new List<PackageResponse>();
+            requestQueue = new List<UdpRequestBase>();
+            responseQueue = new List<UdpReponseBase>();
             PauseClient();
             CreateUdpRequestClients();
             return true;
@@ -106,13 +107,13 @@ namespace NetModel.NetMgr.S2C.Server
             {
                 udp2AnyRequest = new UdpClient(new IPEndPoint(IPAddress.Any, 0));
             }
-            TaskPoolHelper.Instance.StartALongTask(SendMessage, "UdpSendMessage");
-            TaskPoolHelper.Instance.StartALongTask(ReceiveMessage, "UdpReceiveMessage");
+            TaskPoolHelper.Instance.StartALongTask(SendMessage, "UdpAgent->UdpSendMessage");
+            TaskPoolHelper.Instance.StartALongTask(ReceiveMessage, "UdpAgent->UdpReceiveMessage");
         }
 
         private void SendMessage()
         {
-            List<PackageRequest> list = new List<PackageRequest>();
+            List<UdpRequestBase> list = new List<UdpRequestBase>();
             while (true)
             {
                 Thread.Sleep(1);
@@ -127,7 +128,7 @@ namespace NetModel.NetMgr.S2C.Server
                         goto StopServer;
                 }
 
-                List<PackageRequest> tmplist = GetSendData();
+                List<UdpRequestBase> tmplist = GetSendData();
                 if (tmplist == null)
                 {
                     continue;
@@ -148,11 +149,18 @@ namespace NetModel.NetMgr.S2C.Server
                             DestorySendQueue(list);
                             goto StopServer;
                     }
-
-                    for (int i = 0; i < list.Count; i++)
+                    try
                     {
-                        PackageRequest req = list[i];
-                        udp2AnyRequest.Send(req.ProtocolData, (int)req.Count, getIpHandler(req.ClientId));//udpBug,后期修复                        
+                        for (int i = 0; i < list.Count; i++)
+                        {
+                            UdpRequestBase req = list[i];
+
+                            udp2AnyRequest.Send(req.ProtocolData, (int)req.Count, getIpHandler(req.ClientId));//udpBug,后期修复                        
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        LogAgent.LogError("Udp消息发送失败\t" + e.ToString());
                     }
                     DestorySendQueue(list);
                 }
@@ -174,29 +182,36 @@ namespace NetModel.NetMgr.S2C.Server
             while (true)
             {
                 Thread.Sleep(1);
-                PackageResponse reponse = null;
-                lock (mainLock)
+                try
                 {
-                    switch (status)
+                    UdpReponseBase reponse = null;
+                    lock (mainLock)
                     {
-                        case 1:
-                            break;
-                        case 2:
+                        switch (status)
+                        {
+                            case 1:
+                                break;
+                            case 2:
+                                continue;
+                            default:
+                                goto StopServer;
+                        }
+
+                        byte[] data = udp2ClientResponse.Receive(ref receiveClientIpend);//默认每次只接收一个包
+                        data = CheckPack(data);
+                        if (data == null)
+                        {
                             continue;
-                        default:
-                            goto StopServer;
-                    }
+                        }
 
-                    byte[] data = udp2ClientResponse.Receive(ref receiveClientIpend);//默认每次只接收一个包
-                    data = CheckPack(data);
-                    if (data == null)
-                    {
-                        continue;
+                        reponse = GetReponsePackage(data);
                     }
-
-                    reponse = GetReponsePackage(data);
+                    AddReqPackage(reponse);
                 }
-                AddReqPackage(reponse);
+                catch (Exception e)
+                {
+                    LogAgent.LogError("Udp消息接收失败\t" + e.ToString());
+                }
 
             }
 
@@ -242,9 +257,9 @@ namespace NetModel.NetMgr.S2C.Server
             return finalData;
         }
 
-        private PackageResponse GetReponsePackage(byte[] data)
+        private UdpReponseBase GetReponsePackage(byte[] data)
         {
-            PackageResponse package = new PackageResponse();
+            UdpReponseBase package = new UdpReponseBase();
             package.Id = BitConverter.ToInt64(data, 4);
             package.ClientId = BitConverter.ToInt32(data, 20);
             package.ProtocolId = BitConverter.ToInt32(data, 24);
@@ -260,8 +275,8 @@ namespace NetModel.NetMgr.S2C.Server
         /*创建发送消息对列*/
         private long reqId = 0;
 
-        public List<PackageRequest> requestQueue;
-        public void AddReqPackage(PackageRequest req)
+        public List<UdpRequestBase> requestQueue;
+        public void AddReqPackage(UdpRequestBase req)
         {
             SetReqHeader(req);
             lock (requestQueue)
@@ -270,7 +285,7 @@ namespace NetModel.NetMgr.S2C.Server
             }
         }
 
-        private void SetReqHeader(PackageRequest req)
+        private void SetReqHeader(UdpRequestBase req)
         {
             if (!req.Id.Equals(0xffffffff))
                 return;
@@ -291,7 +306,7 @@ namespace NetModel.NetMgr.S2C.Server
             req.WriteInt64(req.Count);
         }
 
-        private List<PackageRequest> GetSendData()
+        private List<UdpRequestBase> GetSendData()
         {
             try
             {
@@ -299,7 +314,7 @@ namespace NetModel.NetMgr.S2C.Server
                 {
                     if (requestQueue.Count > 0)
                     {
-                        List<PackageRequest> list = new List<PackageRequest>();
+                        List<UdpRequestBase> list = new List<UdpRequestBase>();
                         list.AddRange(requestQueue);
 
                         //Udp数据包没有必要保留，发送了就删除
@@ -316,7 +331,7 @@ namespace NetModel.NetMgr.S2C.Server
             return null;
         }
 
-        private void DestorySendQueue(List<PackageRequest> list)
+        private void DestorySendQueue(List<UdpRequestBase> list)
         {
             if (list == null)
                 return;
@@ -333,8 +348,8 @@ namespace NetModel.NetMgr.S2C.Server
 
         #region 接收消息对列
         /*创建接收消息对列*/
-        public List<PackageResponse> responseQueue;
-        public void AddReqPackage(PackageResponse req)
+        public List<UdpReponseBase> responseQueue;
+        public void AddReqPackage(UdpReponseBase req)
         {
             lock (responseQueue)
             {
@@ -342,9 +357,9 @@ namespace NetModel.NetMgr.S2C.Server
             }
         }
 
-        public List<PackageResponse> GetAllReponse()
+        public List<UdpReponseBase> GetAllReponse()
         {
-            List<PackageResponse> list = new List<PackageResponse>();
+            List<UdpReponseBase> list = new List<UdpReponseBase>();
 
             lock (responseQueue)
             {
@@ -353,12 +368,12 @@ namespace NetModel.NetMgr.S2C.Server
                 list.AddRange(responseQueue);
                 responseQueue.Clear();
             }
-            list.Distinct<PackageResponse>();
+            list.Distinct<UdpReponseBase>();
             list.Sort();
             return list;
         }
 
-        private void DestroyReponseQueue(List<PackageResponse> list)
+        private void DestroyReponseQueue(List<UdpReponseBase> list)
         {
             if (list == null)
                 return;

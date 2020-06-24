@@ -13,11 +13,17 @@ namespace NetModel.NetMgr.S2C.Server
         public readonly static ProtocolMgr Instance = new ProtocolMgr();
         #region 协议类型
         /*Udp相关*/
+        public const int UDP_Main = 0x100;
+
 
 
         /*Tcp相关*/
         public const int Data_Main = 0x200;
         public const int Data_GetClientId = Data_Main + 1;
+        /// <summary>
+        /// 成功接收Tcp链接
+        /// </summary>
+        public const int Data_SetTcpId = Data_Main + 2;
 
 
         /*游戏相关*/
@@ -56,7 +62,7 @@ namespace NetModel.NetMgr.S2C.Server
         /// <summary>
         /// 主线程调用的Update
         /// </summary>
-        public static void Update()
+        public void Update()
         {
             lock (respList)
             {
@@ -80,6 +86,7 @@ namespace NetModel.NetMgr.S2C.Server
             lock(respList)
                 respList.Add(respPack);
         }
+
         #endregion
 
         /// <summary>
@@ -94,7 +101,7 @@ namespace NetModel.NetMgr.S2C.Server
             //T pack = (T)Activator.CreateInstance(typeof(T), clientId);
             switch (typeof(T).Name)
             {
-                case "TcpRequestGetClientId":
+                case "UdpRequestGetClientId":
                     pack.ProtocolId = Data_GetClientId;
                     break;
                 default:

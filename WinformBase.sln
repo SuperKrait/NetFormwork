@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestDebugModel", "TestDebugModel\TestDebugModel.csproj", "{301B7442-08E9-4C35-BA24-F59C9F96ADCC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPlayerCtl", "MediaPlayerCtl\MediaPlayerCtl.csproj", "{ACB9F5DB-0DED-4F3D-9B47-52C45F8A0C5B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachineCode", "MachineCode\MachineCode.csproj", "{D4F69107-D8CE-4169-89F7-7EA4D5C6587C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +55,14 @@ Global
 		{301B7442-08E9-4C35-BA24-F59C9F96ADCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{301B7442-08E9-4C35-BA24-F59C9F96ADCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{301B7442-08E9-4C35-BA24-F59C9F96ADCC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACB9F5DB-0DED-4F3D-9B47-52C45F8A0C5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACB9F5DB-0DED-4F3D-9B47-52C45F8A0C5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACB9F5DB-0DED-4F3D-9B47-52C45F8A0C5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACB9F5DB-0DED-4F3D-9B47-52C45F8A0C5B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4F69107-D8CE-4169-89F7-7EA4D5C6587C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4F69107-D8CE-4169-89F7-7EA4D5C6587C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4F69107-D8CE-4169-89F7-7EA4D5C6587C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4F69107-D8CE-4169-89F7-7EA4D5C6587C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

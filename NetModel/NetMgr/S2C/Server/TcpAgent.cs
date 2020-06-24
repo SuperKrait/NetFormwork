@@ -16,23 +16,25 @@ namespace NetModel.NetMgr.S2C.Server
     class TcpAgent
     {
 
-        public bool Init(Func<int, IPEndPoint> getIpHandler)
+        public bool Init(IPEndPoint LocalIpEnd)
         {
             if (!status.Equals(0))
             {
                 return false;
             }
-            this.getIpHandler = getIpHandler;
-            this.tmpClientList = new List<ClientWithTcp>();
-            this.dic = new Dictionary<int, ClientWithTcp>();
+            ProtocolMgr.RegisterProtocol(ProtocolMgr.Data_SetTcpId, AddNewClient2Dic);
+            CreateTcpListener(LocalIpEnd);
+            //this.getIpHandler = getIpHandler;
+            this.tmpClientDic = new Dictionary<string, ClientWithTcp>();
+            this.clientDic = new Dictionary<int, string>();
             PauseClient();
             return true;
             //clientPort = new IPEndPoint(IPAddress.Broadcast, port);
         }
 
 
-        #region Udp控制以及服务器
-        /*Udp控制端端相关*/
+        #region Tcp控制以及服务器
+        /*Tcp控制端端相关*/
         /// <summary>
         /// 0：关闭
         /// 1：开启
@@ -41,7 +43,6 @@ namespace NetModel.NetMgr.S2C.Server
         /// </summary>
         private int status = 0;
         private object mainLock = new object();
-        private Func<int, IPEndPoint> getIpHandler = null;
 
         public int flagHeader = 0xff8a;
 
@@ -71,33 +72,42 @@ namespace NetModel.NetMgr.S2C.Server
         /// <summary>
         /// 销毁
         /// </summary>
-        public void DestoryUdpServer()
+        public void DestoryTcpServer()
         {
-            lock (tmpClientList)
+            StopClient();
+            lock (tmpClientDic)
             {
-                for (int i = 0; i < tmpClientList.Count; i++)
+                foreach (var pairs in tmpClientDic)
                 {
-                    tmpClientList[i].DestoryTcpServer();
+                    pairs.Value.DestoryTcpServer();
                 }
-                tmpClientList.Clear();
+                tmpClientDic.Clear();
+                tmpClientDic = null;
             }
-            lock (mainLock)
+
+            lock (clientDic)
             {
-                StopClient();
+                clientDic.Clear();
+                clientDic = null;
             }
+
+            ProtocolMgr.UnRegisterProtocol(ProtocolMgr.Data_SetTcpId, AddNewClient2Dic);
+
+            SetDefaultClient();
         }
 
 
         #endregion
 
         private TcpListener tcpListener;
-        private List<ClientWithTcp> tmpClientList;
-        private Dictionary<int, ClientWithTcp> dic;
+        private Dictionary<string, ClientWithTcp> tmpClientDic;
+        private Dictionary<int, string> clientDic;
+
 
         private void CreateTcpListener(IPEndPoint ipEnd)
         {
             tcpListener = new TcpListener(ipEnd);
-            TaskPoolHelper.Instance.StartALongTask(AcceptTcpClient, "AcceptTcpClient");
+            TaskPoolHelper.Instance.StartALongTask(AcceptTcpClient, "TcpAgent->AcceptTcpClient");
         }
 
         private void AcceptTcpClient()
@@ -117,10 +127,16 @@ namespace NetModel.NetMgr.S2C.Server
                 {
                     TcpClient tcpClient = tcpListener.AcceptTcpClient();
                     ClientWithTcp client = new ClientWithTcp();
+                    string tcpId = ToolsMgr.GetUUID();
+                    client.tcpId = tcpId;
                     if (client.Init(tcpClient))
                     {
                         client.StartClient();
-                        tmpClientList.Add(client);
+                        client.timeTick = System.DateTime.Now.Ticks;
+                        lock(tmpClientDic)
+                        {
+                            tmpClientDic.Add(tcpId, client);
+                        }
                         TcpRequestGetClientId pack = ProtocolMgr.GetPackageRequest<TcpRequestGetClientId>(-2);
                         client.AddReqPackage(pack);
                     }
@@ -137,26 +153,119 @@ namespace NetModel.NetMgr.S2C.Server
             LogAgent.Log("!关闭Udp循环线程");
         }
 
-        private void AcceptAllMessage()
+        /// <summary>
+        /// 为客户端id添加Tcp索引列表
+        /// </summary>
+        /// <param name="clientId"></param>
+        /// <param name="key"></param>
+        public void AddNewClient2Dic(PackageResponse tcpPack)
         {
-            lock (tmpClientList)
+            TcpResponseBase pack = (TcpResponseBase)tcpPack;
+
+            int clientId = pack.ClientId;
+            string key = pack.tcpId;
+
+            string clientKey = null;
+            bool isInclude = false;
+            lock (clientDic)
             {
-                for (int i = 0; i < tmpClientList.Count; i++)
+                if (clientDic.TryGetValue(clientId, out clientKey))
                 {
-                    tmpClientList[i].GetAllReponse();
+                    if (clientKey.Equals(key))
+                    {
+                        return;
+                    }
+                    isInclude = true;
+                    
                 }
+            }
+
+
+            if (isInclude)
+                lock (tmpClientDic)
+                {
+                    if (!(tmpClientDic[key].timeTick < tmpClientDic[clientKey].timeTick))
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        tmpClientDic[clientKey].DestoryTcpServer();
+                    }
+                }
+
+
+            lock (clientDic)
+            {
+                clientDic.Remove(clientId);
+                clientDic.Add(clientId, clientKey);
             }
         }
 
+        public void AddMessage(TcpRequestBase req)
+        {
+            string tcpId;
+            lock (clientDic)
+            {
+                if (!clientDic.TryGetValue(req.ClientId, out tcpId))
+                {
+                    LogAgent.LogWarning("tcp客户端不存在1 clientId = " + req.ClientId + "\r\n");
+                    return;
+                }
+            }
+            ClientWithTcp client;
+            lock (tmpClientDic)
+            {
+                if (!tmpClientDic.TryGetValue(tcpId, out client))
+                {
+                    LogAgent.LogWarning("tcp客户端不存在2 clientId = " + req.ClientId + "\r\n");
+                    return;
+                }
+            }
+            client.AddReqPackage(req);
+        }
+
+        public Dictionary<string, List<TcpResponseBase>> GetAllReponse()
+        {
+            Dictionary<string, List<TcpResponseBase>> tmpDic = new Dictionary<string, List<TcpResponseBase>>();
+            List<ClientWithTcp> list = new List<ClientWithTcp>();
+            lock (tmpClientDic)
+            {
+                list.AddRange(tmpClientDic.Values);                
+            }
+            if (list.Count.Equals(0))
+            {
+                return null;
+            }
+
+            int count = 0;
+            for (int i = 0; i < list.Count; i++)
+            {
+                List<TcpResponseBase> tmp = list[i].GetAllReponse();
+                if (tmp != null)
+                {
+                    tmp.Distinct();
+                    tmp.Sort();
+                    tmpDic.Add(list[i].tcpId, tmp);
+                    count++;
+                }
+            }
+
+            if (count.Equals(0))
+                return null;
+            
+            return tmpDic;
+        }
 
         class ClientWithTcp
         {
             #region 初始化
             /*初始化*/
-
             public TcpClient client;
             public NetworkStream stream;
             public IPEndPoint ipEnd;
+            public string tcpId;
+            public long timeTick;
             public int ClientId
             {
                 get;
@@ -169,8 +278,8 @@ namespace NetModel.NetMgr.S2C.Server
                 {
                     return false;
                 }
-                this.requestQueue = new List<PackageRequest>();
-                this.responseQueue = new List<PackageResponse>();
+                this.requestQueue = new List<TcpRequestBase>();
+                this.responseQueue = new List<TcpResponseBase>();
                 this.client = client;
                 this.stream = client.GetStream();
                 this.ipEnd = (IPEndPoint)client.Client.RemoteEndPoint;
@@ -179,6 +288,7 @@ namespace NetModel.NetMgr.S2C.Server
                 return true;
                 //clientPort = new IPEndPoint(IPAddress.Broadcast, port);
             }
+
 
             #endregion
 
@@ -255,8 +365,8 @@ namespace NetModel.NetMgr.S2C.Server
             private void TcpMessage()
             {
                 byte[] buffer = new byte[0x800];
-                List<PackageRequest> list = new List<PackageRequest>();
-                PackageResponse reponse = null;
+                List<TcpRequestBase> list = new List<TcpRequestBase>();
+                TcpResponseBase reponse = null;
 
                 while (true)
                 {
@@ -271,7 +381,7 @@ namespace NetModel.NetMgr.S2C.Server
                             goto StopServer;
                     }
 
-                    List<PackageRequest> tmplist = GetSendData();
+                    List<TcpRequestBase> tmplist = GetSendData();
                     if (tmplist == null)
                     {
                         continue;
@@ -295,22 +405,36 @@ namespace NetModel.NetMgr.S2C.Server
                         /*发送消息*/
                         for (int i = 0; i < list.Count; i++)
                         {
-                            PackageRequest req = list[i];
-                            if(this.client.Connected && this.stream.CanWrite)
-                                stream.Write(req.ProtocolData, 0, (int)req.Count);//udpBug,后期修复                        
+                            try
+                            {
+                                TcpRequestBase req = list[i];
+                                if (this.client.Connected && this.stream.CanWrite)
+                                    stream.Write(req.ProtocolData, 0, (int)req.Count);//udpBug,后期修复 
+                            }
+                            catch (Exception e)
+                            {
+                                LogAgent.LogError("Tcp消息发送失败\t" + e.ToString());
+                            }                       
                         }
                         DestorySendQueue(list);
 
-                        /*接收消息*/
-                        if (this.client.Connected && this.client.Available > 0 && this.stream.CanRead)
+                        try
                         {
-                            int count = stream.Read(buffer, 0, buffer.Length);//默认每次只接收一个包
-                            byte[] data = CheckPack(buffer, count);
-                            if (data == null)
+                            /*接收消息*/
+                            if (this.client.Connected && this.client.Available > 0 && this.stream.CanRead)
                             {
-                                continue;
+                                int count = stream.Read(buffer, 0, buffer.Length);//默认每次只接收一个包
+                                byte[] data = CheckPack(buffer, count);
+                                if (data == null)
+                                {
+                                    continue;
+                                }
+                                reponse = GetReponsePackage(data);
                             }
-                            reponse = GetReponsePackage(data);
+                        }
+                        catch (Exception e)
+                        {
+                            LogAgent.LogError("Tcp消息接收失败\t" + e.ToString());
                         }
                     }
                     AddReqPackage(reponse);
@@ -358,15 +482,16 @@ namespace NetModel.NetMgr.S2C.Server
                 return finalData;
             }
 
-            private PackageResponse GetReponsePackage(byte[] data)
+            private TcpResponseBase GetReponsePackage(byte[] data)
             {
-                PackageResponse package = new PackageResponse();
+                TcpResponseBase package = new TcpResponseBase();
                 package.Id = BitConverter.ToInt64(data, 4);
                 package.ClientId = BitConverter.ToInt32(data, 20);
                 package.ProtocolId = BitConverter.ToInt32(data, 24);
                 package.TimeTick = BitConverter.ToInt64(data, 28);
                 package.ipEnd = ipEnd;
                 package.Init(data);
+                package.tcpId = this.tcpId;
                 return package;
             }
 
@@ -376,8 +501,8 @@ namespace NetModel.NetMgr.S2C.Server
             /*创建发送消息对列*/
             private long reqId = 0;
 
-            public List<PackageRequest> requestQueue;
-            public void AddReqPackage(PackageRequest req)
+            public List<TcpRequestBase> requestQueue;
+            public void AddReqPackage(TcpRequestBase req)
             {
                 SetReqHeader(req);
                 lock (requestQueue)
@@ -386,7 +511,7 @@ namespace NetModel.NetMgr.S2C.Server
                 }
             }
 
-            private void SetReqHeader(PackageRequest req)
+            private void SetReqHeader(TcpRequestBase req)
             {
                 if (!req.Id.Equals(0xffffffff))
                     return;
@@ -407,7 +532,7 @@ namespace NetModel.NetMgr.S2C.Server
                 req.WriteInt64(req.Count);
             }
 
-            private List<PackageRequest> GetSendData()
+            private List<TcpRequestBase> GetSendData()
             {
                 try
                 {
@@ -415,7 +540,7 @@ namespace NetModel.NetMgr.S2C.Server
                     {
                         if (requestQueue.Count > 0)
                         {
-                            List<PackageRequest> list = new List<PackageRequest>();
+                            List<TcpRequestBase> list = new List<TcpRequestBase>();
                             list.AddRange(requestQueue);
 
                             //Udp数据包没有必要保留，发送了就删除
@@ -432,7 +557,7 @@ namespace NetModel.NetMgr.S2C.Server
                 return null;
             }
 
-            private void DestorySendQueue(List<PackageRequest> list)
+            private void DestorySendQueue(List<TcpRequestBase> list)
             {
                 if (list == null)
                     return;
@@ -449,8 +574,8 @@ namespace NetModel.NetMgr.S2C.Server
 
             #region 接收消息对列
             /*创建接收消息对列*/
-            public List<PackageResponse> responseQueue;
-            public void AddReqPackage(PackageResponse req)
+            public List<TcpResponseBase> responseQueue;
+            public void AddReqPackage(TcpResponseBase req)
             {
                 lock (responseQueue)
                 {
@@ -458,9 +583,9 @@ namespace NetModel.NetMgr.S2C.Server
                 }
             }
 
-            public List<PackageResponse> GetAllReponse()
+            public List<TcpResponseBase> GetAllReponse()
             {
-                List<PackageResponse> list = new List<PackageResponse>();
+                List<TcpResponseBase> list = new List<TcpResponseBase>();
 
                 lock (responseQueue)
                 {
@@ -469,12 +594,13 @@ namespace NetModel.NetMgr.S2C.Server
                     list.AddRange(responseQueue);
                     responseQueue.Clear();
                 }
-                list.Distinct<PackageResponse>();
+
+                list.Distinct<TcpResponseBase>();
                 list.Sort();
                 return list;
             }
 
-            private void DestroyReponseQueue(List<PackageResponse> list)
+            private void DestroyReponseQueue(List<TcpResponseBase> list)
             {
                 if (list == null)
                     return;
@@ -489,6 +615,8 @@ namespace NetModel.NetMgr.S2C.Server
             }
 
             #endregion
+
+
         }
     }
 }

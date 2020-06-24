@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace NetModel.NetMgr.S2C.Server.Protocol
 {
-    public abstract class TcpReponseBase : PackageResponse
+    public class UdpRequestBase : PackageRequest
     {
-        public abstract void Serialize();
+
     }
 }

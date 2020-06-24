@@ -12,7 +12,7 @@ namespace NetModel.NetMgr.S2C.Server.Protocol
         {
             get;
             set;
-        }
+        } = true;
 
         public override void Serialize()
         {

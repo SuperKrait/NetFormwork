@@ -1,0 +1,5 @@
+E:\WorkSpace\Program\C#\WinFormBase\Bin\MachineCode.dll
+E:\WorkSpace\Program\C#\WinFormBase\Bin\MachineCode.pdb
+E:\WorkSpace\Program\C#\WinFormBase\MachineCode\obj\Debug\MachineCode.csprojResolveAssemblyReference.cache
+E:\WorkSpace\Program\C#\WinFormBase\MachineCode\obj\Debug\MachineCode.dll
+E:\WorkSpace\Program\C#\WinFormBase\MachineCode\obj\Debug\MachineCode.pdb

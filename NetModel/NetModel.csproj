@@ -45,23 +45,23 @@
     <Compile Include="NetMgr\Http\HTTPPackage.cs" />
     <Compile Include="NetMgr\Http\HTTPPackageLinkNode.cs" />
     <Compile Include="NetMgr\Http\HttpSimpleMgr.cs" />
-    <Compile Include="NetMgr\S2C\Server\PackageResponse.cs" />
-    <Compile Include="NetMgr\S2C\Server\PackageRequest.cs" />
-    <Compile Include="NetMgr\S2C\Server\PackageBase.cs" />
-    <Compile Include="NetMgr\S2C\Server\ProtocolMgr.cs" />
     <Compile Include="NetMgr\S2C\Server\IPackageRequest.cs" />
-    <Compile Include="NetMgr\S2C\Server\Protocol\TcpReponseBase.cs" />
+    <Compile Include="NetMgr\S2C\Server\PackageBase.cs" />
+    <Compile Include="NetMgr\S2C\Server\PackageRequest.cs" />
+    <Compile Include="NetMgr\S2C\Server\PackageResponse.cs" />
+    <Compile Include="NetMgr\S2C\Server\ProtocolMgr.cs" />
     <Compile Include="NetMgr\S2C\Server\Protocol\TcpRequestBase.cs" />
     <Compile Include="NetMgr\S2C\Server\Protocol\TcpRequestGetClientId.cs" />
+    <Compile Include="NetMgr\S2C\Server\Protocol\TcpResponseBase.cs" />
     <Compile Include="NetMgr\S2C\Server\Protocol\TcpResponseGetClientId.cs" />
+    <Compile Include="NetMgr\S2C\Server\Protocol\UdpReponseBase.cs" />
+    <Compile Include="NetMgr\S2C\Server\Protocol\UdpRequestBase.cs" />
     <Compile Include="NetMgr\S2C\Server\ServerMgr.cs" />
     <Compile Include="NetMgr\S2C\Server\TcpAgent.cs" />
     <Compile Include="NetMgr\S2C\Server\UdpAgent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="NetMgr\S2C\Client\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj">
       <Project>{01FC188B-8FBB-4E7E-8C64-B863F6313367}</Project>

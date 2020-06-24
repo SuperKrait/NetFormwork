@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NetModel.NetMgr.S2C.Server.Protocol
 {
-    public class TcpResponseGetClientId : TcpReponseBase
+    public class TcpResponseGetClientId : TcpResponseBase
     {
         public override void Serialize()
         {
