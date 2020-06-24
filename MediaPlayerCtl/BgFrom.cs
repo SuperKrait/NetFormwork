@@ -15,6 +15,11 @@ namespace MediaPlayerCtl
         public BgFrom()
         {
             InitializeComponent();
+            MainMgr main = new MainMgr();
+            if (main.Init())
+            {
+                main.MainProgress();
+            }
         }
     }
 }

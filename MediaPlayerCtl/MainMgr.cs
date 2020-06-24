@@ -12,7 +12,7 @@ using NetModel.NetMgr.Http;
 
 namespace MediaPlayerCtl
 {
-    class MainMgr
+    public class MainMgr
     {
         #region 主流程
 
@@ -24,13 +24,13 @@ namespace MediaPlayerCtl
         /// 3为销毁中
         /// </summary>
         private int mgrStatus = 0;
-        private MPHelper player;
 
         public bool Init()
         {
+            UICtrl.Instance.Init();
+            UICtrl.Instance.mainPanel.playerHelper.Init(EndPlayMovie);
+            UICtrl.Instance.mpPanel.playerHelper.Init(EndPlayMovie);
             mgrStatus = 1;
-            player = new MPHelper();
-            player.Init(EndPlayMovie);
             this.mCode = GetMechineCode();
             if (!CheckRegisnFile())
             {
@@ -43,7 +43,6 @@ namespace MediaPlayerCtl
 
         public void MainProgress()
         {
-            
             UICtrl.Instance.OpenMainPanel();
             StartSendHeart();
         }
@@ -163,7 +162,6 @@ namespace MediaPlayerCtl
                 UICtrl.Instance.rgPanel.GetResultFalse();
                 return;
             }
-            UICtrl.Instance.CloseRegisnPanel();
             SetRegisignFile2Local(id);
 
             InitWeb();

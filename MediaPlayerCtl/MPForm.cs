@@ -12,14 +12,12 @@ namespace MediaPlayerCtl
 {
     public partial class MPForm : Form
     {
+        public MPHelper playerHelper;
         public MPForm()
         {
             InitializeComponent();
-        }
-
-        public AxWMPLib.AxWindowsMediaPlayer GetPlayer()
-        {
-            return axWindowsMediaPlayer1;
+            playerHelper = new MPHelper();
+            playerHelper.player = axWindowsMediaPlayer1;
         }
     }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MediaPlayerCtl
 {
-    class MPHelper
+    public class MPHelper
     {
         private Action endHandle;
         public AxWMPLib.AxWindowsMediaPlayer player;

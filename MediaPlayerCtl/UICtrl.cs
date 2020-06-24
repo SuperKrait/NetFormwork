@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace MediaPlayerCtl
 {
@@ -15,51 +16,58 @@ namespace MediaPlayerCtl
         public MPForm mpPanel;
         public RegisnForm rgPanel;
 
+        public Form curForm = null;
+
+        public void Init()
+        {
+            dlPanel = new DLForm();
+            mainPanel = new MainForm();
+            mpPanel = new MPForm();
+            rgPanel = new RegisnForm();
+        }
+
 
         public RegisnForm OpenRegisnPanel()
         {
+            if (curForm != null)
+                curForm.Hide();
+            curForm = rgPanel;
+
             rgPanel.Show();
             return rgPanel;
         }
 
-        public void CloseRegisnPanel()
-        {
-            rgPanel.Hide();
-        }
 
 
         public MainForm OpenMainPanel()
         {
+            if (curForm != null)
+                curForm.Hide();
+            curForm = mainPanel;
+
             mainPanel.Show();
             return mainPanel;
-        }
-
-        public void CloseMainPanel()
-        {
-            mainPanel.Hide();
         }
 
 
         public DLForm OpenDownloadPanel()
         {
+            if (curForm != null)
+                curForm.Hide();
+            curForm = dlPanel;
+
             dlPanel.Show();
             return dlPanel;
         }
 
-        public void CloseDownloadPanel()
-        {
-            dlPanel.Hide();
-        }
-
         public MPForm OpenMPPanel()
         {
+            if (curForm != null)
+                curForm.Hide();
+            curForm = mpPanel;
+
             mpPanel.Show();
             return mpPanel;
-        }
-
-        public void CloseMPPanel()
-        {
-            mpPanel.Hide();
         }
 
         public void Destory()
