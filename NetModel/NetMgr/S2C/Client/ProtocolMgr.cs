@@ -15,6 +15,8 @@ namespace NetModel.NetMgr.S2C.Client
         /*Udp相关*/
         public const int UDP_Main = 0x100;
 
+        public const int UDP_Hello = UDP_Main + 1;
+
 
 
         /*Tcp相关*/
@@ -97,7 +99,7 @@ namespace NetModel.NetMgr.S2C.Client
         /// <returns></returns>
         public static T GetPackageRequest<T>(int clientId) where T : PackageRequest, new()
         {
-            T pack = (T)new T().Initialization(typeof(T), clientId);
+            T pack = (T)new T().Initialization(T, clientId);
             //T pack = (T)Activator.CreateInstance(typeof(T), clientId);
             switch (typeof(T).Name)
             {

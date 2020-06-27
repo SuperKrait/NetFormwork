@@ -8,3 +8,8 @@ E:\WorkSpace\Program\C#\WinFormBase\Bin\NetModel.pdb
 E:\WorkSpace\Program\C#\WinFormBase\NetModel\obj\Debug\NetModel.dll
 E:\WorkSpace\Program\C#\WinFormBase\NetModel\obj\Debug\NetModel.pdb
 E:\WorkSpace\Program\C#\WinFormBase\NetModel\obj\Debug\NetModel.csprojResolveAssemblyReference.cache
+L:\NetFormwork\Bin\NetModel.dll
+L:\NetFormwork\Bin\NetModel.pdb
+L:\NetFormwork\NetModel\obj\Debug\NetModel.csprojResolveAssemblyReference.cache
+L:\NetFormwork\NetModel\obj\Debug\NetModel.dll
+L:\NetFormwork\NetModel\obj\Debug\NetModel.pdb

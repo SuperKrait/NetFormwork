@@ -46,6 +46,7 @@ namespace MediaPlayerCtl
             curForm = mainPanel;
 
             mainPanel.Show();
+            mainPanel.PlayVedio();
             return mainPanel;
         }
 

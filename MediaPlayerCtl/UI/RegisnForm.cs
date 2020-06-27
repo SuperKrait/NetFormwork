@@ -15,6 +15,7 @@ namespace MediaPlayerCtl
         public RegisnForm()
         {
             InitializeComponent();
+            label1.Hide();
         }
 
         public Action<string> resisnHandler;
@@ -26,13 +27,20 @@ namespace MediaPlayerCtl
                 if (resisnHandler != null)
                 {
                     isPress = true;
+                    btnRegisn.Enabled = false;
                     resisnHandler(textBoxRegisnCode.Text);
                 }
         }
 
-        public void GetResultFalse()
+        public void GetResultFalse(string content)
         {
-            isPress = true;
+            MethodInvoker mi = new MethodInvoker(() =>
+            {
+                isPress = true;
+                btnRegisn.Enabled = true;
+                label1.Show();
+            });
+            this.BeginInvoke(mi);
         }
     }
 }

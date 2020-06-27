@@ -56,7 +56,7 @@ namespace NetModel.NetMgr.S2C.Client
             while (isUdpStart)
             {
                 Thread.Sleep(1);
-                List<UdpReponseBase> list = udpAgent.GetAllReponse();
+                List<UdpResponseBase> list = udpAgent.GetAllReponse();
                 if (list == null)
                     continue;
                 for (int i = 0; i < list.Count; i++)
@@ -176,10 +176,10 @@ namespace NetModel.NetMgr.S2C.Client
             {
                 LogAgent.LogError("Udp服务器初始化失败！\r\n");
             }
-            if (InitTcpServer())
-            {
-                LogAgent.LogError("Tcp服务器初始化失败\r\n");
-            }
+            //if (InitTcpServer())
+            //{
+            //    LogAgent.LogError("Tcp服务器初始化失败\r\n");
+            //}
         }
 
 
@@ -204,7 +204,7 @@ namespace NetModel.NetMgr.S2C.Client
                 return;
             status = 1;
             StartUdpClient();
-            StartTcpClient();
+            //StartTcpClient();
         }
 
         public void PauseServer()
@@ -213,7 +213,7 @@ namespace NetModel.NetMgr.S2C.Client
                 return;
             status = 2;
             PauseUdpClient();
-            PauseTcpClient();
+            //PauseTcpClient();
         }
 
 

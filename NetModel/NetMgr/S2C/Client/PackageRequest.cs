@@ -17,14 +17,31 @@ namespace NetModel.NetMgr.S2C.Client
             set;
         } = 0;
 
-        public virtual IPackageRequest Initialization(Type t, int clientId)
+        public byte[] getMemData()
+        {
+            byte[] data = new byte[stream.Length];
+            writer.Seek(0, SeekOrigin.Begin);
+            int count = stream.Read(data, 0, data.Length);
+            if (count != data.Length)
+            {
+                byte[] tmpArr = new byte[count];
+                Array.Copy(data, tmpArr, count);
+                return tmpArr;
+            }
+            return data;
+        }
+
+        public virtual IPackageRequest Initialization(int clientId)
         {
             this.ClientId = clientId;
-            this.ProtocolData = new byte[System.Runtime.InteropServices.Marshal.SizeOf(t) + HeaderCount];
-            stream = new MemoryStream(this.ProtocolData);
-            SetIndex(HeaderCount);
+            //this.ProtocolData = new byte[t + HeaderCount];
+            //stream = new MemoryStream(this.ProtocolData);
+            stream = new MemoryStream();
+            //SetIndex(HeaderCount);
             //this.Count = HeaderCount;
             writer = new BinaryWriter(stream);
+            WriteBytes(new byte[HeaderCount]);
+
             return this;
         }
 
@@ -96,6 +113,8 @@ namespace NetModel.NetMgr.S2C.Client
         {
             ;
         }
+
+        
 
         ~PackageRequest()
         {

@@ -1,0 +1,16 @@
+L:\NetFormwork\TestAppWindows\bin\Debug\TestAppWindows.exe.config
+L:\NetFormwork\TestAppWindows\obj\Debug\Interop.WMPLib.dll
+L:\NetFormwork\TestAppWindows\obj\Debug\AxInterop.WMPLib.dll
+L:\NetFormwork\TestAppWindows\obj\Debug\TestAppWindows.csproj.ResolveComReference.cache
+L:\NetFormwork\TestAppWindows\bin\Debug\TestAppWindows.exe
+L:\NetFormwork\TestAppWindows\bin\Debug\TestAppWindows.pdb
+L:\NetFormwork\TestAppWindows\bin\Debug\Interop.WMPLib.dll
+L:\NetFormwork\TestAppWindows\bin\Debug\AxInterop.WMPLib.dll
+L:\NetFormwork\TestAppWindows\obj\Debug\TestAppWindows.csprojResolveAssemblyReference.cache
+L:\NetFormwork\TestAppWindows\obj\Debug\TestAppWindows.Form1.resources
+L:\NetFormwork\TestAppWindows\obj\Debug\TestAppWindows.Properties.Resources.resources
+L:\NetFormwork\TestAppWindows\obj\Debug\TestAppWindows.csproj.GenerateResource.Cache
+L:\NetFormwork\TestAppWindows\obj\Debug\TestAppWindows.exe
+L:\NetFormwork\TestAppWindows\obj\Debug\TestAppWindows.pdb
+L:\NetFormwork\TestAppWindows\bin\Debug\Common.dll
+L:\NetFormwork\TestAppWindows\bin\Debug\Common.pdb

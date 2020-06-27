@@ -8,3 +8,7 @@ E:\WorkSpace\Program\C#\WinFormBase\Bin\Common.pdb
 E:\WorkSpace\Program\C#\WinFormBase\Common\obj\Debug\Common.csprojResolveAssemblyReference.cache
 E:\WorkSpace\Program\C#\WinFormBase\Common\obj\Debug\Common.dll
 E:\WorkSpace\Program\C#\WinFormBase\Common\obj\Debug\Common.pdb
+L:\NetFormwork\Bin\Common.dll
+L:\NetFormwork\Bin\Common.pdb
+L:\NetFormwork\Common\obj\Debug\Common.dll
+L:\NetFormwork\Common\obj\Debug\Common.pdb

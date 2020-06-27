@@ -9,10 +9,11 @@ namespace MediaPlayerCtl
 {
     public class MPHelper
     {
-        private Action endHandle;
+        private Action<string> endHandle;
         public AxWMPLib.AxWindowsMediaPlayer player;
+        private string path;
 
-        public void Init(Action endHandle)
+        public void Init(Action<string> endHandle)
         {
             this.endHandle = endHandle;
         }
@@ -20,6 +21,7 @@ namespace MediaPlayerCtl
 
         public void Play(string path)
         {
+            this.path = path;
             player.URL = path;
             player.Ctlcontrols.play();
             player.PlayStateChange += new AxWMPLib._WMPOCXEvents_PlayStateChangeEventHandler(player_PlayStateChange);
@@ -36,15 +38,15 @@ namespace MediaPlayerCtl
             {
                 case 0: // Undefined  
                     LogAgent.Log("Undefined" + eventCount);
-                    break;
+                    return;
 
                 case 1: // Stopped  
                     LogAgent.Log("Stopped" + eventCount);
-                    break;
+                    return;
 
                 case 2: // Paused  
                     LogAgent.Log("Paused" + eventCount);
-                    break;
+                    return;
 
                 case 3: // Playing  
                     LogAgent.Log("Playing" + eventCount);
@@ -52,19 +54,19 @@ namespace MediaPlayerCtl
 
                 case 4: // ScanForward  
                     LogAgent.Log("ScanForward" + eventCount);
-                    break;
+                    return;
 
                 case 5: // ScanReverse  
                     LogAgent.Log("ScanReverse" + eventCount);
-                    break;
+                    return;
 
                 case 6: // Buffering  
                     LogAgent.Log("Buffering" + eventCount);
-                    break;
+                    return;
 
                 case 7: // Waiting  
                     LogAgent.Log("Waiting" + eventCount);
-                    break;
+                    return;
 
                 case 8: // MediaEnded  
                     LogAgent.Log("MediaEnded");
@@ -72,7 +74,7 @@ namespace MediaPlayerCtl
 
                 case 9: // Transitioning  
                     LogAgent.Log("Transitioning");
-                    break;
+                    return;
 
                 case 10: // Ready  
                     LogAgent.Log("Ready" + eventCount);
@@ -80,22 +82,23 @@ namespace MediaPlayerCtl
 
                 case 11: // Reconnecting  
                     LogAgent.Log("Reconnecting" + eventCount);
-                    break;
+                    return;
 
                 case 12: // Last  
                     LogAgent.Log("Last" + eventCount);
-                    break;
+                    return;
 
                 default:
                     LogAgent.Log("default" + eventCount);
-                    break;
+                    return;
             }
 
-            player.Ctlcontrols.stop();
+            //player.Ctlcontrols.stop();
             if (endHandle != null)
             {
-                endHandle();
+                endHandle(this.path);
             }
         }
+
     }
 }

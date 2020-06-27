@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 
 namespace NetModel.NetMgr.S2C.Client.Protocol
 {
-    public class UdpReponseBase : PackageResponse
+    public class UdpResponseBase : PackageResponse
     {
-
+        public virtual void DeSerialize()
+        {
+            ;
+        }
     }
 }

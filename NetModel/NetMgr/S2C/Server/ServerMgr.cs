@@ -7,10 +7,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.TaskPool;
+using Common.Log;
 
 namespace NetModel.NetMgr.S2C.Server
 {
-    class ServerMgr
+    public class ServerMgr
     {
         #region Udp相关
         /*创建Udp监听代理*/
@@ -67,7 +68,6 @@ namespace NetModel.NetMgr.S2C.Server
             }
             
         }
-
 
         /*发送消息到指定ip端口*/
 
@@ -233,16 +233,12 @@ namespace NetModel.NetMgr.S2C.Server
         }
 
         /*改变服务器状态*/
-
-
         private int status = 0;
 
         public void SetServerStatus(int status)
         {
             this.status = status;
         }
-
-
         /*接收数据*/
 
         private ProtocolMgr protocolMgr;
@@ -254,12 +250,42 @@ namespace NetModel.NetMgr.S2C.Server
 
 
         /*服务器通用*/
-
+        public void Init()
+        {
+            if (!InitUdpServer())
+            {
+                LogAgent.LogError("Udp服务器初始化失败！\r\n");
+            }
+            //if (InitTcpServer())
+            //{
+            //    LogAgent.LogError("Tcp服务器初始化失败\r\n");
+            //}
+        }
 
         public void Update()
         {
             protocolMgr.Update();
         }
+
+
+        public void StartServer()
+        {
+            if (status.Equals(1))
+                return;
+            status = 1;
+            StartUdpClient();
+            //StartTcpClient();
+        }
+
+        public void PauseServer()
+        {
+            if (status.Equals(2))
+                return;
+            status = 2;
+            PauseUdpClient();
+            //PauseTcpClient();
+        }
+
 
         #endregion
 

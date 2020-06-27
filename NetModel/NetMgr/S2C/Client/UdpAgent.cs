@@ -25,7 +25,7 @@ namespace NetModel.NetMgr.S2C.Client
                 return false;
             }
             requestQueue = new List<UdpRequestBase>();
-            responseQueue = new List<UdpReponseBase>();
+            responseQueue = new List<UdpResponseBase>();
             boardIpEnd = new IPEndPoint(IPAddress.Broadcast, serverPort);
             PauseClient();
             CreateUdpRequestClients();
@@ -157,7 +157,7 @@ namespace NetModel.NetMgr.S2C.Client
                         {
                             UdpRequestBase req = list[i];
 
-                            udp2AnyRequest.Send(req.ProtocolData, (int)req.Count, boardIpEnd);//udpBug,后期修复                        
+                            udp2AnyRequest.Send(req.getMemData(), (int)req.Count, boardIpEnd);//udpBug,后期修复                        
                         }
                     }
                     catch (Exception e)
@@ -186,7 +186,7 @@ namespace NetModel.NetMgr.S2C.Client
                 Thread.Sleep(1);
                 try
                 {
-                    UdpReponseBase reponse = null;
+                    UdpResponseBase reponse = null;
                     lock (mainLock)
                     {
                         switch (status)
@@ -259,9 +259,9 @@ namespace NetModel.NetMgr.S2C.Client
             return finalData;
         }
 
-        private UdpReponseBase GetReponsePackage(byte[] data)
+        private UdpResponseBase GetReponsePackage(byte[] data)
         {
-            UdpReponseBase package = new UdpReponseBase();
+            UdpResponseBase package = new UdpResponseBase();
             package.Id = BitConverter.ToInt64(data, 4);
             package.ClientId = BitConverter.ToInt32(data, 20);
             package.ProtocolId = BitConverter.ToInt32(data, 24);
@@ -300,8 +300,9 @@ namespace NetModel.NetMgr.S2C.Client
             req.WriteInt32(req.ProtocolId);
             req.TimeTick = System.DateTime.Now.Ticks;
             req.WriteInt64(req.TimeTick);
-            string md5 = MD5Code.GetMD5HashFromByte(req.ProtocolData);
+            string md5 = MD5Code.GetMD5HashFromByte(req.getMemData());
             byte[] checkData = Encoding.UTF8.GetBytes(md5);
+            req.SetIndex(36);
             req.SetMd5Header(checkData);
             req.SetIndex(12);
             req.Count += 8;//加上自己
@@ -350,8 +351,8 @@ namespace NetModel.NetMgr.S2C.Client
 
         #region 接收消息对列
         /*创建接收消息对列*/
-        public List<UdpReponseBase> responseQueue;
-        public void AddReqPackage(UdpReponseBase req)
+        public List<UdpResponseBase> responseQueue;
+        public void AddReqPackage(UdpResponseBase req)
         {
             lock (responseQueue)
             {
@@ -359,9 +360,9 @@ namespace NetModel.NetMgr.S2C.Client
             }
         }
 
-        public List<UdpReponseBase> GetAllReponse()
+        public List<UdpResponseBase> GetAllReponse()
         {
-            List<UdpReponseBase> list = new List<UdpReponseBase>();
+            List<UdpResponseBase> list = new List<UdpResponseBase>();
 
             lock (responseQueue)
             {
@@ -370,12 +371,12 @@ namespace NetModel.NetMgr.S2C.Client
                 list.AddRange(responseQueue);
                 responseQueue.Clear();
             }
-            list.Distinct<UdpReponseBase>();
+            list.Distinct<UdpResponseBase>();
             list.Sort();
             return list;
         }
 
-        private void DestroyReponseQueue(List<UdpReponseBase> list)
+        private void DestroyReponseQueue(List<UdpResponseBase> list)
         {
             if (list == null)
                 return;

@@ -9,12 +9,18 @@ using Common.TaskPool;
 using Common.Log;
 using System.Threading;
 using NetModel.NetMgr.Http;
+using LitJson;
 
 namespace MediaPlayerCtl
 {
     public class MainMgr
     {
         #region 主流程
+
+        public MainMgr(Action<Action> addMainAction)
+        {
+            this.addMainAction = addMainAction;
+        }
 
         private string mCode;
         /// <summary>
@@ -25,13 +31,27 @@ namespace MediaPlayerCtl
         /// </summary>
         private int mgrStatus = 0;
 
+        private Action startAppHandle;
+        /// <summary>
+        /// 使方法被主线程调用
+        /// </summary>
+        private Action<Action> addMainAction;
+
+
+        public void SetStartAppHandle(Action action)
+        {
+            this.startAppHandle = action;
+        }
+
         public bool Init()
         {
+            /*初始化面板*/
             UICtrl.Instance.Init();
-            UICtrl.Instance.mainPanel.playerHelper.Init(EndPlayMovie);
+            InitWeb();
             UICtrl.Instance.mpPanel.playerHelper.Init(EndPlayMovie);
-            mgrStatus = 1;
+
             this.mCode = GetMechineCode();
+            /*判断是否打开注册流程*/
             if (!CheckRegisnFile())
             {
                 UICtrl.Instance.rgPanel.resisnHandler = SetRegisnCode;
@@ -41,10 +61,17 @@ namespace MediaPlayerCtl
             return true;
         }
 
+
+
         public void MainProgress()
         {
-            UICtrl.Instance.OpenMainPanel();
+            addMainAction(() =>
+            {
+                UICtrl.Instance.OpenMainPanel();
+            });
+            mgrStatus = 2;
             StartSendHeart();
+            PlayProgress();            
         }
 
         public void PlayProgress()
@@ -67,19 +94,24 @@ namespace MediaPlayerCtl
                 string tmpPath = curPlayPath;
                 curPlayPath = string.Empty;
 
-                UICtrl.Instance.OpenMPPanel();
-                player.Play(curPlayPath);
+                addMainAction(() =>
+                {
+                    UICtrl.Instance.OpenMPPanel();
+                    UICtrl.Instance.mpPanel.playerHelper.Play(tmpPath);
+                });
 
+                mgrStatus = 2;
             }
 
-            STOP_PLAY:
+        STOP_PLAY:
             LogAgent.Log("销毁播放了");
         }
 
 
-        private void EndPlayMovie()
+        private void EndPlayMovie(string path)
         {
             mgrStatus = 1;
+            TellServerPlayEnd(path);
             StartSendHeart();
         }
 
@@ -88,11 +120,16 @@ namespace MediaPlayerCtl
             return MachineCode.MachineCode.GetMachineCodeString();
         }
 
+        public void StopAll()
+        {
+            StopSendHeart();
+            mgrStatus = 3;
+        }
+
 
 
 
         #endregion
-
 
         #region 注册相关
 
@@ -119,15 +156,17 @@ namespace MediaPlayerCtl
             {
                 return false;
             }
+            this.id = code[0];
             this.regisnCode = regisnCode;
             return true;
         }
 
         private void SetRegisnCode(string str)
         {
+            /*检查注册码是否符合格式*/
             if (str.Length.Equals(22))
             {
-                SetRegisnResult(3, string.Empty);
+                SetRegisnResult(3);
                 return;
             }
             for (int i = 0; i < str.Length; i++)
@@ -136,7 +175,7 @@ namespace MediaPlayerCtl
                 {
                     continue;
                 }
-                if(str[i] <= 81 && str[i] > 106)
+                if (str[i] <= 81 && str[i] > 106)
                 {
                     continue;
                 }
@@ -144,9 +183,10 @@ namespace MediaPlayerCtl
                 {
                     continue;
                 }
-                SetRegisnResult(3, string.Empty);
+                SetRegisnResult(3);
                 return;
             }
+
             regisnCode = str;
             CheckRegisnFromServerr(str);
         }
@@ -155,16 +195,33 @@ namespace MediaPlayerCtl
         /// 反馈注册结果
         /// </summary>
         /// <param name="status">0,为失败,1为成功,2为断网,3为本地输入有误</param>
-        private void SetRegisnResult(int status, string id)
+        public void SetRegisnResult(int status)
         {
+            string content = "";
             if (!status.Equals(1))
             {
-                UICtrl.Instance.rgPanel.GetResultFalse();
+                switch (status)
+                {
+                    case 0:
+                        content = "注册失败！请重试...";
+                        break;
+                    case 2:
+                        content = "当前网络状态不佳！请重试...";
+                        break;
+                    case 3:
+                        content = "序列号输入有误，请重试...";
+                        break;
+                }
+                addMainAction(()=>
+                {
+                    UICtrl.Instance.rgPanel.GetResultFalse(content);
+                });
                 return;
             }
-            SetRegisignFile2Local(id);
 
-            InitWeb();
+
+            SetRegisignFile2Local(this.id);
+            CheckPublicVedio();
             MainProgress();
         }
 
@@ -181,7 +238,7 @@ namespace MediaPlayerCtl
 
             File.WriteAllLines(regisnTextPath, code);
         }
-        
+
 
         #endregion
 
@@ -206,9 +263,8 @@ namespace MediaPlayerCtl
         private void SendHeart()
         {
             Dictionary<string, string> param = new Dictionary<string, string>();
-            param.Add();
-            param.Add();
-            param.Add();
+            param.Add("eqptCode", regisnCode);
+            param.Add("machineId", mCode);
             while (true)
             {
                 Thread.Sleep(5000);
@@ -220,9 +276,9 @@ namespace MediaPlayerCtl
                     case 2:
                         continue;
                 }
-                TaskPoolHelper.Instance.StartNewTask(()=>
+                TaskPoolHelper.Instance.StartNewTask(() =>
                 {
-                    string content = GetMsgFromHttp(httpHeart, param);
+                    string content = GetMsgFromHttpByPost(httpHeart, param);
 
                     if (Interlocked.CompareExchange(ref isDownLoading, 1, 0).Equals(0))
                     {
@@ -237,6 +293,7 @@ namespace MediaPlayerCtl
                             }
 
                             isEnableReceiveCodeStatus = 2;
+
                             string url = ;//下载文件的url
 
                             string path = CheckLocalFileExist(url);
@@ -247,26 +304,35 @@ namespace MediaPlayerCtl
                                 return;
                             }
 
-                            path = DownloadFile(url);
+                            addMainAction(()=>
+                            {
+                                UICtrl.Instance.OpenDownloadPanel();
+                            });
+
+
+                            path = DownloadFile(url, );
 
                             if (!string.IsNullOrEmpty(path))
                             {
                                 this.curPlayPath = path;
                                 return;
-                            }                            
+                            }
+                            addMainAction(() =>
+                            {
+                                UICtrl.Instance.OpenMainPanel();
+                            });
 
                         }
-                        
+
+                        Interlocked.Exchange(ref isDownLoading, 0);
                     }
-
-
 
                 }, "MainMgr->GetHeartMsg");
             }
-            STOP_Heart:
+        STOP_Heart:
 
             LogAgent.Log("服务器关闭");
-        }        
+        }
 
         private void StopSendHeart()
         {
@@ -287,7 +353,7 @@ namespace MediaPlayerCtl
             param.Add();
             param.Add();
 
-            string content = GetMsgFromHttp(httpTellServerGetDLUrl, param);
+            string content = GetMsgFromHttpByPost(httpTellServerGetDLUrl, param);
 
             if (string.IsNullOrEmpty(content))
             {
@@ -295,11 +361,23 @@ namespace MediaPlayerCtl
             }
             return true;
         }
-    
 
-        private string DownloadFile(string url)
+        private void TellServerPlayEnd(string filePath)
+        {
+            Dictionary<string, string> param = new Dictionary<string, string>();
+            param.Add("eqptId", filePath.Substring(filePath.LastIndexOf('\\') + 1, filePath.LastIndexOf('\\') - filePath.LastIndexOf('.')));
+
+            GetMsgFromHttpByPost(httpTellServerGetDLUrl, param);
+        }
+
+
+        private string DownloadFile(string url, string fileId)
         {
             string path = System.IO.Path.Combine(dirPath, url.Substring(url.LastIndexOf('/') + 1));
+            string fileName = path.Substring(path.LastIndexOf('/') + 1);
+            string endName = fileName.Substring(fileName.LastIndexOf('.'));
+            path = path.Replace(fileName, fileId + endName);
+
             bool status = false;
             try
             {
@@ -324,17 +402,135 @@ namespace MediaPlayerCtl
 
         private void CheckRegisnFromServerr(string regisnCode)
         {
+            Dictionary<string, string> tmpDic = new Dictionary<string, string>();
+            tmpDic.Add("eqptCode", regisnCode);
+            tmpDic.Add("machineId", mCode);
             TaskPoolHelper.Instance.StartNewTask(() =>
             {
+                string content = GetMsgFromHttpByPost(httpRegisn, tmpDic);
+
+                if (string.IsNullOrEmpty(content))
+                {
+                    SetRegisnResult(2);
+                    return;
+                }
+
+                JsonData json = JsonMapper.ToJson(content);
+                if (json["status"].Equals(0))
+                {
+                    SetRegisnResult(0);
+                }
+                else
+                {
+                    this.id = json["data"].ToString();
+                    this.regisnCode = regisnCode;
+
+                    if (startAppHandle != null)
+                    {
+                        startAppHandle();
+                    }
+                }
 
             }, "MainMgr->CheckRegisnFromServerr");
         }
-        private const string httpServer = "";
-        private const string httpRegisn = httpServer + "";
+
+        /// <summary>
+        /// 当前本地公共视频状态
+        /// -1是正在请求，0是没有，1是齐全，2是不全，3是获取列表失败
+        /// </summary>
+        private bool publicVedioStatus = false;
+
+        /// <summary>
+        /// 查看公共视频是否完整
+        /// </summary>
+        public void CheckPublicVedio()
+        {
+            string content = "";
+            TaskPoolHelper.Instance.StartNewTask(()=>
+            {
+                Dictionary<string, string> tmpDic = new Dictionary<string, string>();
+                content = GetMsgFromHttpByPost(httpGetDefaultVedio, tmpDic);
+            });
+
+
+            while (!publicVedioStatus)
+            {
+                Thread.Sleep(1);                
+            }
+
+            if (string.IsNullOrEmpty(content))
+            {
+                LogAgent.LogError("获取公共视频列表失败！");
+                return;
+            }
+
+            string listText = ;
+
+            string[] vedioId = listText.Split(...);
+            addMainAction(() =>
+            {
+                UICtrl.Instance.OpenDownloadPanel();
+            });
+
+            /*去检查公共视频是否下载完成*/
+            int count = 0;
+            for (int i = 0; i < vedioId.Length; i++)
+            {
+                string path = CheckLocalFileExist(vedioId[i]);
+                if (string.IsNullOrEmpty(path))
+                {
+                    TaskPoolHelper.Instance.StartNewTask(() =>
+                    {
+                        string[] tmp = vedioId[i].Split(...);
+                        //0是url地址，1是id
+                        path = DownloadFile(tmp[0], tmp[1]);
+                        
+                        if (string.IsNullOrEmpty(path))
+                        {
+                            if (File.Exists(path))
+                            {
+                                File.Delete(path);
+                            }
+                        }
+                        else
+                        {
+                            lock (publicVedioList)
+                                publicVedioList.Add(path);
+                        }
+                        Interlocked.Add(ref count, 1);
+                    });
+                }
+                else
+                {
+                    Interlocked.Add(ref count, 1);
+                    publicVedioList.Add(path);
+                }                
+            }
+
+            /*等待公共视频全部下载完成*/
+            while (true)
+            {
+                if (count.Equals(vedioId.Length))
+                {
+                    break;
+                }
+                Thread.Sleep(1000);
+            }
+            UICtrl.Instance.mainPanel.AddList(publicVedioList);
+        }
+
+
+        private const string httpServer = "http://192.168.1.109:9999";
+        private const string httpRegisn = httpServer + "/frtar/hardware/registerMachine";
         private const string httpHeart = httpServer + "";
         private const string httpTellServerGetDLUrl = httpServer + "";
+        private const string httpGetQRCode = httpServer + "/frtar/wx/videoCode";
+        private const string httpGetVedioUrlByPersonal = httpServer + "frtar/hardware/personalVideo";
+        private const string httpGetDefaultVedio = httpServer + "frtar/hardware/personalVideo";
+        private const string httpFileDefaultUrl = httpServer + "";
 
-        private string GetMsgFromHttp(string url, Dictionary<string, string> param)
+
+        private string GetMsgFromHttpByPost(string url, Dictionary<string, string> param)
         {
             try
             {
@@ -351,12 +547,19 @@ namespace MediaPlayerCtl
         #endregion
 
         #region 文件相关
+
         private string dirPath = "";
         private string curPlayPath = "";
+        private string publicVedioDirName = "";
+        /// <summary>
+        /// 公共视频列表
+        /// </summary>
+        private List<string> publicVedioList = new List<string>();
+        private int publicVedioIndex = 0;
 
         private string CheckLocalFileExist(string url)
         {
-            string path = System.IO.Path.Combine(dirPath, url.Substring(url.LastIndexOf('/') + 1));
+            string path = System.IO.Path.Combine(dirPath, url.Replace(httpFileDefaultUrl, ""));
             if (File.Exists(path))
             {
                 return path;

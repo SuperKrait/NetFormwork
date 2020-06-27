@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPlayerCtl", "MediaPlay
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachineCode", "MachineCode\MachineCode.csproj", "{D4F69107-D8CE-4169-89F7-7EA4D5C6587C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestAppWindows", "TestAppWindows\TestAppWindows.csproj", "{CFB252EC-BD76-4BD7-A1A0-F19B5E96EA91}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{D4F69107-D8CE-4169-89F7-7EA4D5C6587C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4F69107-D8CE-4169-89F7-7EA4D5C6587C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D4F69107-D8CE-4169-89F7-7EA4D5C6587C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFB252EC-BD76-4BD7-A1A0-F19B5E96EA91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFB252EC-BD76-4BD7-A1A0-F19B5E96EA91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFB252EC-BD76-4BD7-A1A0-F19B5E96EA91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFB252EC-BD76-4BD7-A1A0-F19B5E96EA91}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

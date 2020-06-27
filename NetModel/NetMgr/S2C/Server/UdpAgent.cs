@@ -155,7 +155,7 @@ namespace NetModel.NetMgr.S2C.Server
                         {
                             UdpRequestBase req = list[i];
 
-                            udp2AnyRequest.Send(req.ProtocolData, (int)req.Count, getIpHandler(req.ClientId));//udpBug,后期修复                        
+                            udp2AnyRequest.Send(req.getMemData(), (int)req.Count, getIpHandler(req.ClientId));//udpBug,后期修复                        
                         }
                     }
                     catch (Exception e)
@@ -298,8 +298,9 @@ namespace NetModel.NetMgr.S2C.Server
             req.WriteInt32(req.ProtocolId);
             req.TimeTick = System.DateTime.Now.Ticks;
             req.WriteInt64(req.TimeTick);
-            string md5 = MD5Code.GetMD5HashFromByte(req.ProtocolData);
+            string md5 = MD5Code.GetMD5HashFromByte(req.getMemData());
             byte[] checkData = Encoding.UTF8.GetBytes(md5);
+            req.SetIndex(36);
             req.SetMd5Header(checkData);
             req.SetIndex(12);
             req.Count += 8;//加上自己

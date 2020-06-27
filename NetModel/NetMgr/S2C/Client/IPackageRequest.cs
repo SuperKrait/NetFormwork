@@ -8,7 +8,7 @@ namespace NetModel.NetMgr.S2C.Client
 {
     public interface IPackageRequest
     {
-        IPackageRequest Initialization(Type t, int clientId);
+        IPackageRequest Initialization(int clientId);
         void Serialize();
     }
 }

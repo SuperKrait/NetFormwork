@@ -8,19 +8,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace MediaPlayerCtl
+namespace MediaPlayerCtl.UI
 {
-    public partial class MainForm : Form
+    public partial class LoadingForm : Form
     {
-
-        public MPHelper playerHelper;
-        public MainForm()
+        public LoadingForm()
         {
             InitializeComponent();
-            playerHelper = new MPHelper();
-            playerHelper.player = axWindowsMediaPlayer1;
         }
-
-
     }
 }

@@ -267,7 +267,7 @@ namespace NetModel.NetMgr.S2C.Client
                             {
                                 TcpRequestBase req = list[i];
                                 if (this.client.Connected && this.stream.CanWrite)
-                                    stream.Write(req.ProtocolData, 0, (int)req.Count);//udpBug,后期修复 
+                                    stream.Write(req.getMemData(), 0, (int)req.Count);//udpBug,后期修复 
                             }
                             catch (Exception e)
                             {
@@ -382,8 +382,9 @@ namespace NetModel.NetMgr.S2C.Client
                 req.WriteInt32(req.ProtocolId);
                 req.TimeTick = System.DateTime.Now.Ticks;
                 req.WriteInt64(req.TimeTick);
-                string md5 = MD5Code.GetMD5HashFromByte(req.ProtocolData);
+                string md5 = MD5Code.GetMD5HashFromByte(req.getMemData());
                 byte[] checkData = Encoding.UTF8.GetBytes(md5);
+                req.SetIndex(36);
                 req.SetMd5Header(checkData);
                 req.SetIndex(12);
                 req.Count += 8;//加上自己

@@ -13,3 +13,7 @@ E:\WorkSpace\Program\C#\WinFormBase\TestDebugModel\obj\Debug\TestDebugModel.pdb
 E:\WorkSpace\Program\C#\WinFormBase\Bin\TestDebugModel.exe
 E:\WorkSpace\Program\C#\WinFormBase\Bin\TestDebugModel.pdb
 E:\WorkSpace\Program\C#\WinFormBase\TestDebugModel\obj\Debug\TestDebugModel.csprojResolveAssemblyReference.cache
+L:\NetFormwork\Bin\TestDebugModel.exe.config
+L:\NetFormwork\TestDebugModel\obj\Debug\TestDebugModel.exe
+L:\NetFormwork\TestDebugModel\obj\Debug\TestDebugModel.pdb
+L:\NetFormwork\TestDebugModel\obj\Debug\TestDebugModel.csprojResolveAssemblyReference.cache
